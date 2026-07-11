@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netero — 「AIで稼ぐ」アリーナ | 全員のタスクが見えるタスクSNS</title>
+<meta name="description" content="あなたがサボった今日も、誰かのタスクは完了している。Netero は同じ目標を持つ人間のタスク・進捗・完了がすべて公開で流れるタスクSNS。第1アリーナ「AIで稼ぐ」ウェイトリスト受付中。">
+<meta property="og:title" content="Netero — 「AIで稼ぐ」アリーナ">
+<meta property="og:description" content="全員のタスクが公開で流れる。隠す場所はないから、続く。ウェイトリスト受付中。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050507;
+    --bg2: #0a0a0f;
+    --card: #0e0e15;
+    --card2: #12121b;
+    --line: rgba(255,255,255,.07);
+    --line2: rgba(255,255,255,.12);
+    --text: #f2f2f5;
+    --dim: #9a9aa8;
+    --faint: #5c5c6b;
+    --ember: #ff4d1c;
+    --ember2: #ff9a3c;
+    --gold: #ffc24d;
+    --grad: linear-gradient(97deg, var(--ember) 0%, var(--ember2) 55%, var(--gold) 100%);
+    --font-jp: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-en: "Inter", var(--font-jp);
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-jp);
+    font-feature-settings: "palt";
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(255,77,28,.35); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  .wrap-narrow { max-width: 780px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== atmosphere ===== */
+  .atmosphere { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(90px); opacity: .5;
+    will-change: transform;
+  }
+  .blob-1 {
+    width: 640px; height: 640px; top: -280px; left: 50%; margin-left: -320px;
+    background: radial-gradient(circle, rgba(255,77,28,.5), transparent 65%);
+    animation: drift1 26s ease-in-out infinite alternate;
+  }
+  .blob-2 {
+    width: 460px; height: 460px; top: 380px; right: -230px;
+    background: radial-gradient(circle, rgba(255,154,60,.22), transparent 65%);
+    animation: drift2 34s ease-in-out infinite alternate;
+  }
+  .blob-3 {
+    width: 420px; height: 420px; top: 1200px; left: -240px;
+    background: radial-gradient(circle, rgba(255,77,28,.16), transparent 65%);
+    animation: drift1 40s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes drift1 { to { transform: translate(60px, 50px) scale(1.12); } }
+  @keyframes drift2 { to { transform: translate(-70px, -40px) scale(.94); } }
+  .gridlines {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(ellipse 90% 55% at 50% 0%, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 55% at 50% 0%, #000 30%, transparent 75%);
+  }
+  .noise {
+    position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  }
+
+  /* ===== nav ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    background: rgba(5,5,7,.55);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-in {
+    max-width: 1080px; margin: 0 auto; padding: 0 24px;
+    height: 60px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-en); font-weight: 900; font-size: 1.14rem; letter-spacing: -.02em;
+    display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--text);
+  }
+  .logo-mark {
+    width: 24px; height: 24px; border-radius: 7px; background: var(--grad);
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 18px rgba(255,77,28,.5);
+    font-size: .8rem; color: #170a02;
+  }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    text-decoration: none; font-weight: 800; font-family: var(--font-jp);
+    border-radius: 12px; cursor: pointer; border: none;
+    transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+  }
+  .btn-fire {
+    color: #170a02; background: var(--grad);
+    box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 8px 32px rgba(255,77,28,.38);
+  }
+  .btn-fire:hover { transform: translateY(-2px); box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 14px 44px rgba(255,77,28,.55); }
+  .btn-sm { font-size: .8rem; padding: 9px 18px; border-radius: 10px; }
+  .btn-lg { font-size: 1.05rem; padding: 17px 36px; }
+  .btn-ghost {
+    color: var(--dim); font-size: .82rem; font-weight: 600;
+    border: 1px solid var(--line2); background: rgba(255,255,255,.02); padding: 9px 18px;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
+
+  /* ===== hero ===== */
+  .hero { padding: 148px 0 40px; text-align: center; position: relative; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: .8rem; font-weight: 700; letter-spacing: .04em;
+    color: var(--ember2);
+    border: 1px solid rgba(255,154,60,.28);
+    background: linear-gradient(180deg, rgba(255,77,28,.14), rgba(255,77,28,.05));
+    border-radius: 999px; padding: 7px 18px; margin-bottom: 34px;
+    box-shadow: 0 0 24px rgba(255,77,28,.12);
+  }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--ember); position: relative; }
+  .pulse::after {
+    content: ""; position: absolute; inset: -5px; border-radius: 50%;
+    border: 1px solid var(--ember); animation: ring 1.8s ease-out infinite;
+  }
+  @keyframes ring { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+
+  h1 {
+    font-size: clamp(2.15rem, 6.8vw, 4.15rem);
+    font-weight: 900; line-height: 1.32; letter-spacing: .005em;
+  }
+  h1 .l { display: block; overflow: hidden; }
+  h1 .l > span { display: inline-block; transform: translateY(110%); animation: rise .9s cubic-bezier(.2,.75,.2,1) forwards; }
+  h1 .l:nth-child(2) > span { animation-delay: .12s; }
+  @keyframes rise { to { transform: translateY(0); } }
+  .fire-text {
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 26px rgba(255,77,28,.3));
+  }
+  .hero .lead {
+    margin: 26px auto 0; max-width: 34em;
+    color: var(--dim); font-size: clamp(.92rem, 2.4vw, 1.04rem);
+    animation: fadeup 1s .35s both;
+  }
+  .hero .lead strong { color: var(--text); font-weight: 700; }
+  @keyframes fadeup { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .hero-cta { margin-top: 38px; display: flex; flex-direction: column; align-items: center; gap: 14px; animation: fadeup 1s .5s both; }
+  .cta-sub { font-size: .78rem; color: var(--faint); letter-spacing: .05em; }
+  .cta-sub b { color: var(--dim); }
+
+  /* ===== app demo frame ===== */
+  .stage { position: relative; margin: 74px auto 0; max-width: 960px; padding: 0 16px; animation: fadeup 1.1s .65s both; }
+  .stage::before {
+    content: ""; position: absolute; inset: -70px -30px auto; height: 420px; z-index: -1;
+    background: radial-gradient(ellipse 60% 100% at 50% 20%, rgba(255,77,28,.22), transparent 70%);
+    filter: blur(30px);
+  }
+  .app {
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      linear-gradient(160deg, rgba(255,154,60,.5), rgba(255,255,255,.09) 30%, rgba(255,255,255,.05) 60%, rgba(255,77,28,.35)) border-box;
+    box-shadow: 0 40px 120px rgba(0,0,0,.7), 0 0 80px rgba(255,77,28,.09);
+  }
+  .app-bar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 18px; border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,.015);
+  }
+  .traffic { display: flex; gap: 6px; }
+  .traffic i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.12); }
+  .app-title { font-family: var(--font-mono); font-size: .7rem; color: var(--faint); letter-spacing: .08em; }
+  .live-chip {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: .64rem; font-weight: 700; letter-spacing: .12em;
+    color: var(--ember2); border: 1px solid rgba(255,154,60,.3); border-radius: 999px; padding: 4px 12px;
+  }
+  .demo-chip {
+    font-family: var(--font-mono); font-size: .6rem; color: var(--faint);
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px;
+  }
+  .app-body { display: grid; grid-template-columns: 1.45fr 1fr; }
+  @media (max-width: 760px) {
+    .app-body { grid-template-columns: 1fr; }
+    /* モバイルではリーグ+草をフィードの下に積む（隠さない） */
+    .app-side { border-left: none; border-top: 1px solid var(--line); }
+  }
+
+  .pane-label {
+    font-family: var(--font-mono); font-size: .62rem; font-weight: 700; letter-spacing: .16em;
+    color: var(--faint); padding: 16px 20px 6px;
+  }
+  #feed { list-style: none; height: 372px; overflow: hidden; position: relative; padding: 4px 0 0; }
+  #feed::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(transparent, var(--card)); }
+  #feed li {
+    display: flex; gap: 13px; align-items: flex-start;
+    padding: 11px 20px; animation: slidein .4s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes slidein { from { opacity: 0; transform: translateY(-14px); } }
+  .avatar {
+    flex: none; width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+    background: var(--card2); border: 1px solid var(--line2); position: relative;
+  }
+  .avatar.hot::after {
+    content: ""; position: absolute; inset: -2px; border-radius: 50%;
+    border: 1.5px solid transparent;
+    background: var(--grad) border-box;
+    -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .feed-body { min-width: 0; }
+  .feed-meta { font-size: .7rem; color: var(--faint); font-family: var(--font-en); }
+  .feed-meta b { color: var(--dim); font-weight: 700; }
+  .task-title { font-weight: 600; font-size: .88rem; line-height: 1.55; }
+  .st {
+    font-size: .64rem; font-weight: 900; border-radius: 6px; padding: 2px 8px; margin-left: 8px;
+    vertical-align: 2px; letter-spacing: .05em; white-space: nowrap;
+  }
+  .st.done { color: #170a02; background: var(--grad); box-shadow: 0 0 14px rgba(255,77,28,.35); }
+  .st.doing { color: var(--ember2); border: 1px solid rgba(255,154,60,.4); }
+  .st.new { color: #8ab8ff; border: 1px solid rgba(120,170,255,.35); }
+
+  .app-side { border-left: 1px solid var(--line); background: rgba(255,255,255,.012); }
+  .league { padding: 4px 14px 10px; }
+  .league-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 8px; border-radius: 10px; font-size: .78rem;
+  }
+  .league-row.you { background: linear-gradient(90deg, rgba(255,77,28,.16), transparent); border: 1px solid rgba(255,77,28,.25); }
+  .rank { font-family: var(--font-mono); font-weight: 700; font-size: .72rem; color: var(--faint); width: 18px; }
+  .league-row.you .rank { color: var(--ember2); }
+  .lname { font-family: var(--font-en); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .lpts { font-family: var(--font-mono); font-size: .72rem; color: var(--dim); }
+  .updown { font-size: .62rem; font-family: var(--font-mono); }
+  .up { color: #7dd87d; } .down { color: #ff7a7a; }
+  .grass { padding: 2px 20px 20px; display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; }
+  .cell { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,.05); }
+  .cell.g1 { background: rgba(255,77,28,.22); }
+  .cell.g2 { background: rgba(255,77,28,.45); }
+  .cell.g3 { background: rgba(255,122,40,.75); box-shadow: 0 0 6px rgba(255,77,28,.4); }
+  .cell.g4 { background: var(--ember2); box-shadow: 0 0 10px rgba(255,154,60,.65); }
+
+  /* ===== marquee ===== */
+  .marquee { margin-top: 84px; border-block: 1px solid var(--line); padding: 15px 0; overflow: hidden; position: relative; }
+  .marquee::before, .marquee::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2; pointer-events: none;
+  }
+  .marquee::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+  .marquee::after { right: 0; background: linear-gradient(-90deg, var(--bg), transparent); }
+  .marquee-track { display: flex; gap: 44px; width: max-content; animation: scroll 42s linear infinite; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+  .mq-item { display: inline-flex; align-items: center; gap: 10px; font-size: .8rem; color: var(--dim); white-space: nowrap; }
+  .mq-item .check { color: var(--ember2); font-weight: 900; }
+  .mq-item .who { font-family: var(--font-en); color: var(--faint); font-size: .7rem; }
+
+  /* ===== sections ===== */
+  section { padding: 108px 0 0; }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: .68rem; font-weight: 700; letter-spacing: .3em;
+    color: var(--ember); margin-bottom: 18px;
+  }
+  h2 { font-size: clamp(1.55rem, 4.4vw, 2.35rem); font-weight: 900; line-height: 1.45; letter-spacing: .01em; }
+  .sec-lead { color: var(--dim); margin-top: 16px; font-size: .95rem; max-width: 40em; }
+  .sec-lead b { color: var(--text); }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ===== bento ===== */
+  .bento { display: grid; gap: 14px; margin-top: 44px; grid-template-columns: repeat(6, 1fr); }
+  .bx {
+    grid-column: span 6;
+    border-radius: 18px; padding: 26px; position: relative; overflow: hidden;
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.04) 40%, rgba(255,77,28,.18)) border-box;
+    transition: transform .2s ease;
+  }
+  .bx:hover { transform: translateY(-3px); }
+  .bx::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
+    background: radial-gradient(420px 220px at var(--mx, 50%) var(--my, 0%), rgba(255,77,28,.1), transparent 70%);
+  }
+  .bx:hover::before { opacity: 1; }
+  @media (min-width: 700px) {
+    .b-4 { grid-column: span 4; } .b-3 { grid-column: span 3; } .b-2 { grid-column: span 2; }
+  }
+  .bx .icon {
+    width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem; background: rgba(255,77,28,.12); border: 1px solid rgba(255,77,28,.22); margin-bottom: 16px;
+  }
+  .bx h3 { font-size: 1.06rem; font-weight: 900; margin-bottom: 8px; }
+  .bx p { font-size: .84rem; color: var(--dim); }
+  .bx .visual { margin-top: 18px; }
+  .mini-feedline { display: flex; align-items: center; gap: 8px; font-size: .74rem; color: var(--dim); padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .mini-feedline:last-child { border-bottom: none; }
+  .mini-feedline .ico { font-size: .85rem; }
+  .tier-track { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-family: var(--font-mono); font-size: .66rem; font-weight: 700; }
+  .tier { border: 1px solid var(--line2); color: var(--faint); border-radius: 8px; padding: 4px 10px; }
+  .tier.on { color: #170a02; background: var(--grad); border-color: transparent; box-shadow: 0 0 16px rgba(255,77,28,.4); }
+  .tier-arrow { color: var(--faint); }
+  .streak-num {
+    font-family: var(--font-en); font-weight: 900; font-size: 2.9rem; line-height: 1;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .streak-cap { font-size: .7rem; color: var(--faint); margin-top: 4px; }
+
+  /* ===== creed（数字で語る設計思想）===== */
+  .creed { margin-top: 46px; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  @media (min-width: 700px) { .creed { grid-template-columns: repeat(4, 1fr); } }
+  .creed div { background: var(--card); padding: 26px 22px; }
+  .creed .n {
+    font-family: var(--font-en); font-weight: 900; font-size: 2.3rem; line-height: 1.1;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .creed .t { font-size: .8rem; font-weight: 700; margin-top: 8px; }
+  .creed .d { font-size: .72rem; color: var(--faint); margin-top: 4px; line-height: 1.6; }
+
+  /* ===== steps ===== */
+  .steps { margin-top: 46px; display: grid; gap: 12px; counter-reset: step; }
+  .step {
+    display: flex; gap: 22px; align-items: flex-start;
+    border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,.015), transparent);
+    transition: border-color .2s;
+  }
+  .step:hover { border-color: rgba(255,77,28,.35); }
+  .step::before {
+    counter-increment: step; content: "0" counter(step);
+    font-family: var(--font-en); font-weight: 900; font-size: 1.5rem; line-height: 1.2;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .step b { display: block; font-size: 1rem; font-weight: 900; }
+  .step span { font-size: .84rem; color: var(--dim); }
+
+  /* ===== manifesto ===== */
+  .manifesto { margin-top: 108px; text-align: center; position: relative; padding: 90px 24px; overflow: hidden; }
+  .manifesto::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(ellipse 70% 90% at 50% 50%, rgba(255,77,28,.13), transparent 70%);
+  }
+  .manifesto p {
+    font-size: clamp(1.5rem, 4.6vw, 2.5rem); font-weight: 900; line-height: 1.75; letter-spacing: .02em;
+  }
+  .manifesto small { display: block; margin-top: 22px; font-size: .84rem; color: var(--dim); font-weight: 500; letter-spacing: .2em; }
+
+  /* ===== themes ===== */
+  .themes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
+  .theme {
+    font-size: .84rem; font-weight: 700; border-radius: 999px; padding: 9px 20px;
+    border: 1px solid var(--line2); color: var(--dim); background: rgba(255,255,255,.02);
+  }
+  .theme.open {
+    color: #170a02; background: var(--grad); border-color: transparent;
+    box-shadow: 0 0 22px rgba(255,77,28,.4);
+  }
+  .theme.open::after { content: " ● 受付中"; font-size: .68rem; }
+
+  /* ===== waitlist ===== */
+  .waitlist { margin-top: 118px; }
+  .wl-card {
+    position: relative; text-align: center; border-radius: 26px; padding: 74px 28px; overflow: hidden;
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--bg2), var(--bg2)) padding-box,
+      linear-gradient(160deg, rgba(255,154,60,.6), rgba(255,255,255,.08) 35%, rgba(255,77,28,.5)) border-box;
+  }
+  .wl-card::before {
+    content: ""; position: absolute; inset: -40% -20% auto; height: 480px; z-index: 0;
+    background: radial-gradient(ellipse 55% 65% at 50% 45%, rgba(255,77,28,.28), transparent 70%);
+    filter: blur(20px);
+  }
+  .wl-card > * { position: relative; z-index: 1; }
+  .wl-card h2 { font-size: clamp(1.6rem, 4.6vw, 2.4rem); }
+  .wl-card .sec-lead { margin: 16px auto 0; }
+  .wl-card .btn-lg { margin-top: 34px; }
+  .wl-fine { margin-top: 18px; font-size: .72rem; color: var(--faint); }
+
+  footer {
+    margin-top: 96px; padding: 30px 0 52px; border-top: 1px solid var(--line);
+    font-size: .76rem; color: var(--faint);
+  }
+  .foot-in { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; }
+  footer a { color: var(--dim); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+
+  /* ===== mobile ===== */
+  @media (max-width: 640px) {
+    .hero { padding: 116px 0 20px; }
+    h1 { font-size: clamp(1.72rem, 8.6vw, 2.6rem); line-height: 1.42; }
+    .badge { font-size: .68rem; padding: 6px 13px; margin-bottom: 26px; letter-spacing: .02em; }
+    .hero .lead { padding: 0 4px; }
+    .hero-cta { margin-top: 30px; }
+    .hero-cta .btn-lg { width: 100%; max-width: 360px; font-size: .98rem; padding: 16px 20px; }
+    .cta-sub { padding: 0 12px; line-height: 1.9; }
+    .stage { margin-top: 52px; padding: 0 12px; }
+    .app { border-radius: 16px; }
+    .app-bar { padding: 11px 14px; gap: 10px; }
+    .app-title { display: none; }
+    .pane-label { padding: 14px 16px 4px; }
+    #feed { height: 316px; }
+    #feed li { padding: 10px 14px; gap: 11px; }
+    .task-title { font-size: .84rem; }
+    .league { padding: 4px 10px 10px; }
+    .grass { padding: 2px 16px 18px; gap: 3px; }
+    .marquee { margin-top: 54px; padding: 12px 0; }
+    .marquee-track { gap: 30px; }
+    section { padding: 78px 0 0; }
+    .eyebrow { margin-bottom: 14px; }
+    .bento { margin-top: 34px; gap: 12px; }
+    .bx { padding: 22px 20px; border-radius: 16px; }
+    .creed { margin-top: 36px; }
+    .creed div { padding: 20px 18px; }
+    .creed .n { font-size: 2rem; }
+    .steps { margin-top: 36px; }
+    .step { gap: 16px; padding: 18px; border-radius: 14px; }
+    .step::before { font-size: 1.25rem; }
+    .manifesto { margin-top: 80px; padding: 62px 20px; }
+    .themes { margin-top: 26px; gap: 8px; }
+    .theme { font-size: .78rem; padding: 8px 16px; }
+    .waitlist { margin-top: 86px; }
+    .wl-card { padding: 50px 20px; border-radius: 20px; }
+    .wl-card .btn-lg { width: 100%; max-width: 360px; font-size: .98rem; padding: 16px 20px; }
+    footer { margin-top: 70px; padding: 24px 0 42px; }
+    .foot-in { flex-direction: column; gap: 10px; }
+    .blob-1 { width: 440px; height: 440px; margin-left: -220px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    h1 .l > span { transform: none; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="atmosphere">
+  <div class="gridlines"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+<div class="noise"></div>
+
+<nav>
+  <div class="nav-in">
+    <a class="logo" href="#"><span class="logo-mark">▲</span>Netero</a>
+    <a class="btn btn-fire btn-sm" href="#waitlist">ウェイトリスト登録</a>
+  </div>
+</nav>
+
+<!-- ============================== HERO ============================== -->
+<header class="hero">
+  <div class="wrap">
+    <span class="badge"><span class="pulse"></span><span id="hero-badge"></span></span>
+    <h1 id="hero-title"></h1>
+    <p class="lead" id="hero-lead"></p>
+    <div class="hero-cta">
+      <a class="btn btn-fire btn-lg" href="#waitlist">ウェイトリストに参加する — 無料</a>
+      <span class="cta-sub">先行アクセスは<b>登録順に少人数ずつ</b>招待 ／ メールアドレスのみで30秒</span>
+    </div>
+  </div>
+
+  <!-- app demo -->
+  <div class="stage">
+    <div class="app">
+      <div class="app-bar">
+        <span class="traffic"><i></i><i></i><i></i></span>
+        <span class="app-title">netero — arena/<span id="app-slug"></span></span>
+        <span class="live-chip"><span class="pulse"></span>LIVE</span>
+        <span class="demo-chip">画面イメージ</span>
+      </div>
+      <div class="app-body">
+        <div class="app-main">
+          <div class="pane-label">ARENA FEED — 全員のタスクが流れる</div>
+          <ul id="feed"></ul>
+        </div>
+        <div class="app-side">
+          <div class="pane-label">WEEKLY LEAGUE — GOLD Ⅲ</div>
+          <div class="league" id="league"></div>
+          <div class="pane-label">STREAK — 16 WEEKS</div>
+          <div class="grass" id="grass"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- marquee -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="mq"></div>
+  </div>
+</header>
+
+<!-- ============================== WHY ============================== -->
+<section class="wrap">
+  <div class="reveal">
+    <div class="eyebrow">WHY IT WORKS</div>
+    <h2>やる気は出すものじゃない。<br><span class="fire-text">浴びるものだ。</span></h2>
+    <p class="sec-lead">図書館だと勉強が捗るのは、監視されているからじゃない。<b>周りが手を動かしている気配</b>があるからだ。Netero はその気配を、タスクデータで再現する。開いた瞬間、誰かの完了が流れてくる。<b>それだけで、あなたは動き出す。</b></p>
+  </div>
+
+  <div class="bento">
+    <div class="bx b-4 reveal">
+      <div class="icon">👁</div>
+      <h3>タスクは、すべて公開。</h3>
+      <p>宣言も、進捗も、完了も、全員に見える。「見られている」は最強の締切。隠す場所はないから、続く。</p>
+      <div class="visual">
+        <div class="mini-feedline"><span class="ico">📣</span>宣言 — 「今週中にKindle原稿を書き切る」</div>
+        <div class="mini-feedline"><span class="ico">⚡</span>進行 — 「第2章まで完了。今夜ラスト1章」</div>
+        <div class="mini-feedline"><span class="ico">🔥</span>完了 — 全員のフィードに流れ、🔥が付く</div>
+      </div>
+    </div>
+    <div class="bx b-2 reveal">
+      <div class="icon">🔥</div>
+      <h3>連続記録</h3>
+      <p>止めた日が、全員にバレる。</p>
+      <div class="visual">
+        <div class="streak-num" data-count="47">0</div>
+        <div class="streak-cap">DAY STREAK — 記録は資産、途切れは事件</div>
+      </div>
+    </div>
+    <div class="bx b-3 reveal">
+      <div class="icon">⚔️</div>
+      <h3>週次リーグ。昇格か、降格か。</h3>
+      <p>消化ペースが近い5〜10人で毎週リーグ戦。週末に上位は昇格、下位は降格。サボれば落ちる。ルールはそれだけ。</p>
+      <div class="visual tier-track">
+        <span class="tier">BRONZE</span><span class="tier-arrow">→</span>
+        <span class="tier">SILVER</span><span class="tier-arrow">→</span>
+        <span class="tier on">GOLD</span><span class="tier-arrow">→</span>
+        <span class="tier">DIAMOND</span>
+      </div>
+    </div>
+    <div class="bx b-3 reveal">
+      <div class="icon">🏟</div>
+      <h3>同じ山を登る奴しかいない。</h3>
+      <p>アリーナはテーマ制。「AIで稼ぐ」アリーナにいるのは、AIで稼ごうとしている人間だけ。深夜2時にフィードが動く。<b style="color:var(--text)">こんな時間にも、やってる奴がいる。</b>その事実があなたを机に戻す。</p>
+    </div>
+  </div>
+
+  <div class="creed reveal">
+    <div><div class="n">100<span style="font-size:1.2rem">%</span></div><div class="t">タスクは公開</div><div class="d">非公開機能は作らない。見せる前提だから効く</div></div>
+    <div><div class="n">0</div><div class="t">コメント欄</div><div class="d">マウントも説教も勧誘も、構造的に不可能</div></div>
+    <div><div class="n">1</div><div class="t">リアクションは🔥だけ</div><div class="d">ネガティブな反応は存在しない</div></div>
+    <div><div class="n">7<span style="font-size:1.2rem">日</span></div><div class="t">ごとにリーグ再編成</div><div class="d">毎週月曜、また同じスタートラインに立つ</div></div>
+  </div>
+</section>
+
+<!-- ============================== HOW ============================== -->
+<section class="wrap-narrow">
+  <div class="reveal">
+    <div class="eyebrow">HOW IT WORKS</div>
+    <h2>仕組みは、4つだけ。</h2>
+  </div>
+  <div class="steps">
+    <div class="step reveal"><div><b>アリーナに入る</b><span id="step1-note"></span></div></div>
+    <div class="step reveal"><div><b>タスクを自分で作る</b><span>やり方は自由。何をタスクにするか＝攻め方こそが、あなたの個性として全員に見える。</span></div></div>
+    <div class="step reveal"><div><b>消化する。全員のフィードに流れる</b><span>宣言 → 実行 → 完了。そのすべてがリアルタイムに公開される。</span></div></div>
+    <div class="step reveal"><div><b>週末、リーグの結果が出る</b><span>昇格か、降格か。そして月曜、また始まる。</span></div></div>
+  </div>
+</section>
+
+<!-- ============================== MANIFESTO ============================== -->
+<div class="manifesto reveal">
+  <p>意志力は、あてにならない。<br>環境は、<span class="fire-text">裏切らない。</span></p>
+  <small>焦りを、燃料に変えろ。</small>
+</div>
+
+<!-- ============================== ARENAS ============================== -->
+<section class="wrap">
+  <div class="reveal">
+    <div class="eyebrow">ARENAS</div>
+    <h2>アリーナは、順次開設。</h2>
+    <p class="sec-lead">第1アリーナは「<b id="theme-inline"></b>」。以降、ウェイトリストの集まったテーマから順にオープンする。あなたの山がまだ無いなら、それは<b>あなたが最初の1人になれる</b>ということだ。</p>
+    <div class="themes" id="themes"></div>
+  </div>
+</section>
+
+<!-- ============================== WAITLIST ============================== -->
+<section class="waitlist wrap" id="waitlist">
+  <div class="wl-card reveal">
+    <div class="eyebrow" style="color:var(--ember2)">GET EARLY ACCESS</div>
+    <h2>第1アリーナ「<span id="wl-theme"></span>」<br>ウェイトリスト受付中</h2>
+    <p class="sec-lead" style="text-align:center">先行アクセスは登録順に少人数ずつ招待します。<br>初期メンバーは最初のリーグの<b>創設面子</b>になります。</p>
+    <a class="btn btn-fire btn-lg" id="form-link" href="#" target="_blank" rel="noopener">ウェイトリストに登録する — 30秒</a>
+    <p class="wl-fine">登録は無料。メールアドレスといくつかの質問だけ。β招待の連絡以外には使いません。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <a class="logo" href="#" style="font-size:.95rem"><span class="logo-mark" style="width:20px;height:20px;font-size:.65rem">▲</span>Netero</a>
+    <div><a href="#" id="x-link" target="_blank" rel="noopener">X: @netero_app（準備中）</a></div>
+    <div>© 2026 Netero</div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+ * THEME 設定 — テーマ別 LP はこのオブジェクトの差し替えだけで量産する
+ * （lp/README.md の複製手順を参照）
+ * ============================================================ */
+const THEME = {
+  slug: "ai-earn",
+  badge: "第1アリーナ「AIで稼ぐ」 — ウェイトリスト受付中",
+  titleLines: ["あなたがサボった今日も、", "<span class='fire-text'>誰かのタスクは完了している。</span>"],
+  lead: "Netero は「<strong>AIで稼ぐ</strong>」を本気でやる人間だけのタスクSNS。全員のタスク・進捗・完了が、リアルタイムで流れる。隠す場所はない。<strong>だから、続く。</strong>",
+  themeName: "AIで稼ぐ",
+  step1Note: "第1アリーナは「AIで稼ぐ」。TOEIC・筋トレ・資格など、テーマは順次オープン。",
+  sampleTasks: [
+    { t: "Kindle出版: 第3章まで書き切る", s: "done" },
+    { t: "Claude でLP制作案件を1本納品", s: "done" },
+    { t: "AIブログ 2記事公開", s: "doing" },
+    { t: "X運用: 今日の10ポストを予約投稿", s: "done" },
+    { t: "ココナラにAI画像生成サービスを出品", s: "new" },
+    { t: "GPTsで業務効率化テンプレを3本作る", s: "doing" },
+    { t: "note有料記事の下書きを完成させる", s: "done" },
+    { t: "AI動画1本 編集して投稿", s: "done" },
+    { t: "アフィ記事のリライト 5本", s: "doing" },
+    { t: "自作アプリのウェイトリストLPを公開", s: "done" },
+    { t: "プロンプト集の商品ページを作る", s: "new" },
+    { t: "今月の収益レポートをまとめる", s: "done" },
+  ],
+  themes: [
+    { name: "AIで稼ぐ", open: true },
+    { name: "TOEIC", open: false },
+    { name: "筋トレ", open: false },
+    { name: "資格試験", open: false },
+    { name: "大学受験", open: false },
+    { name: "個人開発", open: false },
+  ],
+  // Google フォーム（ウェイトリスト、スプレッドシート紐付け済み）
+  formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSdIE_GBbz9zDeQZ5djsvLka9fIMSu9jH7fqIwDt7nq78CUT4Q/viewform",
+  xUrl: "https://x.com/REPLACE_ME",
+};
+
+/* ---- render ---- */
+const $ = id => document.getElementById(id);
+$("hero-badge").textContent = THEME.badge;
+$("hero-title").innerHTML = THEME.titleLines.map(l => `<span class="l"><span>${l}</span></span>`).join("");
+$("hero-lead").innerHTML = THEME.lead;
+$("app-slug").textContent = THEME.slug;
+$("step1-note").textContent = THEME.step1Note;
+$("theme-inline").textContent = THEME.themeName;
+$("wl-theme").textContent = THEME.themeName;
+$("form-link").href = THEME.formUrl;
+$("x-link").href = THEME.xUrl;
+$("themes").innerHTML = THEME.themes
+  .map(t => `<span class="theme ${t.open ? "open" : ""}">${t.name}</span>`).join("");
+
+/* ---- feed mock ---- */
+const HANDLES = ["kai", "mono", "yuzu_dev", "sara", "grind_87", "tk", "haru", "nano", "j1ro", "mei"];
+const EMOJI = ["🦊","🐺","🦉","🐯","🐉","🦅","🐗","🦁","🐙","🦂"];
+const LABEL = { done: "完了", doing: "進行中", new: "宣言" };
+const feed = $("feed");
+let fi = 0;
+function pushItem() {
+  const task = THEME.sampleTasks[fi % THEME.sampleTasks.length];
+  const u = Math.floor(Math.random() * HANDLES.length);
+  const mins = Math.floor(Math.random() * 9) + 1;
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <div class="avatar ${task.s === "done" ? "hot" : ""}">${EMOJI[u]}</div>
+    <div class="feed-body">
+      <div class="feed-meta"><b>${HANDLES[u]}</b> · ${mins}m ago</div>
+      <div class="task-title">${task.t}<span class="st ${task.s}">${LABEL[task.s]}</span></div>
+    </div>`;
+  feed.prepend(li);
+  while (feed.children.length > 8) feed.removeChild(feed.lastChild);
+  fi++;
+}
+for (let i = 0; i < 7; i++) pushItem();
+setInterval(pushItem, 2600);
+
+/* ---- league mock ---- */
+const L = [
+  ["grind_87", 34, "up"], ["kai", 31, "up"], ["あなた", 29, "you"],
+  ["yuzu_dev", 26, "down"], ["mono", 22, ""], ["sara", 19, "down"],
+];
+$("league").innerHTML = L.map(([n, p, s], i) => `
+  <div class="league-row ${s === "you" ? "you" : ""}">
+    <span class="rank">${i + 1}</span><span class="lname">${n}</span>
+    <span class="updown ${s === "up" ? "up" : s === "down" ? "down" : ""}">${s === "up" ? "▲" : s === "down" ? "▼" : ""}</span>
+    <span class="lpts">${p}pt</span>
+  </div>`).join("");
+
+/* ---- contribution grass mock ---- */
+const grass = $("grass");
+const W = [0,0,1,1,2,2,2,3,3,4]; // 密度重み（後半＝加速している人の草）
+let cells = "";
+for (let c = 0; c < 16; c++) {
+  for (let r = 0; r < 4; r++) {
+    const bias = Math.min(9, Math.floor(c / 1.8) + Math.floor(Math.random() * 4));
+    const g = W[Math.min(9, bias)];
+    cells += `<div class="cell ${g ? "g" + g : ""}"></div>`;
+  }
+}
+grass.innerHTML = cells;
+
+/* ---- marquee ---- */
+const mqItems = THEME.sampleTasks.map((t, i) =>
+  `<span class="mq-item"><span class="check">✔</span>${t.t}<span class="who">— ${HANDLES[i % HANDLES.length]}</span></span>`).join("");
+$("mq").innerHTML = mqItems + mqItems; /* 2周分でシームレスループ */
+
+/* ---- scroll reveal ---- */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { threshold: .15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ---- streak count-up ---- */
+const cu = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  cu.unobserve(e.target);
+  const end = +e.target.dataset.count, t0 = performance.now();
+  (function tick(t) {
+    const p = Math.min(1, (t - t0) / 1200);
+    e.target.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(tick);
+  })(t0);
+}), { threshold: .6 });
+document.querySelectorAll("[data-count]").forEach(el => cu.observe(el));
+
+/* ---- bento pointer glow ---- */
+document.querySelectorAll(".bx").forEach(b => {
+  b.addEventListener("pointermove", e => {
+    const r = b.getBoundingClientRect();
+    b.style.setProperty("--mx", (e.clientX - r.left) + "px");
+    b.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+});
+</script>
+</body>
+</html>
