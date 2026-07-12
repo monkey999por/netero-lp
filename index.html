@@ -5,18 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Netero</title>
 <meta name="robots" content="noindex">
-<!-- ルートは【リロードのたびに】アリーナをランダムに切り替える（直前と同じにはしない）。
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+<!-- ルートは【リロードのたびに】アリーナをランダムに切り替える(直前と同じにはしない)。
      各アリーナLPは /<slug>/ で常時直アクセス可能。ここは振り分けだけ。
      JS 無効時はメタリフレッシュで ai-earn にフォールバック。 -->
 <meta http-equiv="refresh" content="0; url=/ai-earn/">
 <style>
   html,body{height:100%;margin:0}
-  body{background:#050507;color:#9a9aa8;display:flex;align-items:center;justify-content:center;
-    font-family:"Inter","Noto Sans JP",system-ui,sans-serif;font-size:.9rem}
+  body{background:#050507;color:#9a9aa8;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;
+    font-family:"Inter","Noto Sans JP",system-ui,sans-serif;font-size:.85rem}
+  .mark{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    color:#170a02;font-weight:900;font-size:1.3rem;
+    background:linear-gradient(97deg,#ff4d1c 0%,#ff9a3c 55%,#ffc24d 100%);
+    box-shadow:0 0 34px rgba(255,77,28,.55);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.08);box-shadow:0 0 50px rgba(255,77,28,.75)}}
+  @media(prefers-reduced-motion:reduce){.mark{animation:none}}
   a{color:#ff9a3c;text-decoration:none;font-weight:700}
 </style>
 </head>
 <body>
+  <div class="mark" aria-hidden="true">▲</div>
   <p>今週のアリーナへ移動中… <a href="/ai-earn/">移動しない場合はこちら</a></p>
   <script>
     // リロードのたびにアリーナをランダムに変える。アリーナを足したらここに slug を追加するだけ。

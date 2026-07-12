@@ -8,215 +8,420 @@
 <meta property="og:title" content="Netero — 「大学受験」アリーナ">
 <meta property="og:description" content="隣の席が、ペンを止めない。全員の勉強が公開で流れる、終わらないオンライン自習室。ウェイトリスト受付中。">
 <meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✏️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Zen+Kurenaido&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Zen+Kurenaido&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --board:#20423a; --board2:#1a3630; --frame:#5b3a22; --frame2:#78502f;
+    --night:#101d18; --board:#20423a; --board2:#1a3630; --desk:#16302a;
     --chalk:#f5f2e8; --chalkdim:#c4c9bd; --chalkfaint:#8fa096;
-    --yellow:#ffe08a; --pink:#ff9d92; --blue:#9fd3e0;
+    --yellow:#ffe08a; --pink:#ff9d92; --blue:#9fd3e0; --tape:rgba(245,242,232,.25);
     --hand:"Yomogi",cursive; --pen:"Zen Kurenaido",sans-serif; --sans:"Noto Sans JP",sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{background:#14251f;color:var(--chalk);font-family:var(--pen);line-height:1.9;
+  body{background:var(--night);color:var(--chalk);font-family:var(--pen);line-height:1.95;
     -webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:1.04rem}
-  ::selection{background:rgba(255,224,138,.35);color:#20423a}
-  .wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+  ::selection{background:rgba(255,224,138,.4);color:#20423a}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 24px}
+  .narrow{max-width:760px;margin:0 auto;padding:0 24px}
 
-  /* chalkboard surface */
+  /* ============ 夜の教室 ============ */
   .board{position:fixed;inset:0;z-index:-2;background:
     radial-gradient(ellipse 60% 50% at 30% 20%,rgba(255,255,255,.035),transparent 60%),
     radial-gradient(ellipse 50% 50% at 80% 70%,rgba(255,255,255,.025),transparent 60%),
-    var(--board)}
+    linear-gradient(180deg,var(--board) 0%,var(--board2) 100%)}
   .board::after{content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")}
+  /* 窓の外の星 */
+  .stars{position:fixed;inset:0;z-index:-1;pointer-events:none}
+  .stars i{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--chalk);opacity:.35;
+    animation:twinkle 3.2s ease-in-out infinite}
+  @keyframes twinkle{50%{opacity:.08;transform:scale(.7)}}
 
-  nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(8px);background:rgba(32,66,58,.72);border-bottom:1px dashed rgba(245,242,232,.25)}
-  .nav-in{max-width:1000px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+  /* ============ nav ============ */
+  #progress{position:fixed;top:0;left:0;height:3px;width:0%;z-index:55;background:var(--yellow);
+    box-shadow:0 0 10px rgba(255,224,138,.6);border-radius:0 3px 3px 0}
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    background:rgba(26,54,48,.78);border-bottom:2px dashed rgba(245,242,232,.22)}
+  .nav-in{max-width:1020px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .logo{font-family:var(--hand);font-size:1.4rem;color:var(--chalk);text-decoration:none;display:flex;align-items:center;gap:8px}
   .logo .m{color:var(--yellow)}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;transition:transform .16s,background .16s;font-family:var(--pen);font-weight:700}
-  .btn-chalk{color:#20423a;background:var(--yellow);border:2px solid var(--yellow);box-shadow:2px 2px 0 rgba(0,0,0,.25)}
-  .btn-chalk:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(0,0,0,.3)}
-  .btn-outline{color:var(--chalk);background:transparent;border:2px dashed var(--chalk)}
-  .btn-outline:hover{background:rgba(245,242,232,.08)}
+  .nav-live{margin-left:auto;font-family:var(--hand);font-size:.82rem;color:var(--chalkfaint)}
+  .nav-live b{color:var(--yellow)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;
+    transition:transform .16s,box-shadow .16s;font-family:var(--pen);font-weight:700;position:relative}
+  .btn-chalk{color:#20423a;background:var(--yellow);border:2px solid var(--yellow);box-shadow:3px 3px 0 rgba(0,0,0,.28)}
+  .btn-chalk:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(0,0,0,.32)}
+  .btn-chalk:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(0,0,0,.3)}
   .btn-sm{font-size:.85rem;padding:8px 16px;border-radius:6px}
-  .btn-lg{font-size:1.1rem;padding:15px 36px;border-radius:8px}
+  .btn-lg{font-size:1.08rem;padding:15px 36px;border-radius:8px}
 
-  .hero{padding:140px 0 44px;text-align:center}
-  .chip{display:inline-block;font-family:var(--hand);font-size:.95rem;color:var(--yellow);border:2px dashed rgba(255,224,138,.5);border-radius:30px;padding:5px 20px;margin-bottom:28px;transform:rotate(-1.5deg)}
-  h1{font-family:var(--hand);font-size:clamp(2rem,7vw,4rem);line-height:1.5;color:var(--chalk);text-shadow:1px 1px 0 rgba(0,0,0,.2)}
-  h1 .u{position:relative;color:var(--yellow)}
-  h1 .u::after{content:"";position:absolute;left:-2%;right:-2%;bottom:2px;height:5px;background:var(--pink);border-radius:3px;opacity:.85}
+  /* ============ hero ============ */
+  .hero{padding:138px 0 44px;text-align:center;position:relative}
+  .chip{display:inline-block;font-family:var(--hand);font-size:.95rem;color:var(--yellow);
+    border:2px dashed rgba(255,224,138,.5);border-radius:30px;padding:5px 20px;margin-bottom:30px;transform:rotate(-1.5deg)}
+  h1{font-family:var(--hand);font-size:clamp(2rem,7vw,4rem);line-height:1.55;color:var(--chalk);text-shadow:1px 1px 0 rgba(0,0,0,.2)}
+  h1 .u{position:relative;color:var(--yellow);white-space:nowrap}
+  /* チョークで引かれる下線 */
+  .chalkline{position:absolute;left:-2%;right:-2%;bottom:-4px;width:104%;height:14px;pointer-events:none}
+  .chalkline path{stroke:var(--pink);stroke-width:4;fill:none;stroke-linecap:round;
+    stroke-dasharray:600;stroke-dashoffset:600;animation:drawline 1s cubic-bezier(.4,.2,.3,1) 1s forwards}
+  @keyframes drawline{to{stroke-dashoffset:0}}
   .lead{margin:26px auto 0;max-width:30em;color:var(--chalkdim);font-size:clamp(1rem,2.5vw,1.16rem)}
   .lead b{color:var(--chalk)}
-  .cta-row{margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .cta-row{margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:14px}
   .cta-note{font-size:.85rem;color:var(--chalkfaint)}
+  .study-now{font-family:var(--hand);font-size:.9rem;color:var(--chalkfaint)}
+  .study-now b{color:var(--yellow)}
+  .study-now .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);
+    box-shadow:0 0 8px var(--blue);margin-right:7px;animation:breathe 2.6s ease-in-out infinite;vertical-align:1px}
+  @keyframes breathe{50%{opacity:.3}}
 
-  /* countdown */
-  .count{margin:44px auto 0;display:inline-flex;align-items:baseline;gap:12px;font-family:var(--hand);
-    border:2px dashed rgba(245,242,232,.4);border-radius:14px;padding:14px 28px;transform:rotate(.6deg)}
+  /* カウントダウン(実計算) */
+  .count{margin:42px auto 0;display:inline-flex;align-items:baseline;gap:12px;font-family:var(--hand);
+    border:2px dashed rgba(245,242,232,.4);border-radius:14px;padding:14px 30px;transform:rotate(.6deg);position:relative}
+  .count::before{content:"";position:absolute;top:-9px;left:50%;width:64px;height:18px;margin-left:-32px;
+    background:var(--tape);transform:rotate(-2deg);border-radius:2px}
   .count .lbl{font-size:1rem;color:var(--chalkdim)}
-  .count .num{font-size:2.6rem;color:var(--yellow);line-height:1}
+  .count .num{font-size:2.7rem;color:var(--yellow);line-height:1;letter-spacing:.04em}
   .count .u2{font-size:1.1rem;color:var(--chalk)}
+  .count .sub{position:absolute;right:14px;bottom:-24px;font-size:.72rem;color:var(--chalkfaint);transform:rotate(-1deg)}
 
-  /* self-study log */
-  .stage{margin:60px auto 0;max-width:840px}
-  .desk{border:3px solid rgba(245,242,232,.22);border-radius:12px;overflow:hidden;background:rgba(26,54,48,.7);box-shadow:0 24px 70px rgba(0,0,0,.4)}
-  .desk-bar{display:flex;align-items:center;gap:10px;padding:13px 22px;border-bottom:2px dashed rgba(245,242,232,.2);font-family:var(--hand)}
-  .desk-bar .t{color:var(--yellow);font-size:1.05rem}
-  .desk-bar .live{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--pink)}
-  .desk-bar .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--pink);animation:pulse 1.4s infinite}
-  @keyframes pulse{50%{opacity:.3}}
-  .imgchip{margin-left:auto;font-size:.72rem;color:var(--chalkfaint);font-family:var(--sans);border:1px dashed rgba(245,242,232,.3);border-radius:20px;padding:2px 10px}
-  #feed{list-style:none;height:344px;overflow:hidden;position:relative;padding:6px 0}
-  #feed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:76px;background:linear-gradient(transparent,rgba(26,54,48,.95))}
-  #feed li{display:flex;align-items:center;gap:14px;padding:12px 24px;animation:slide .4s ease}
+  /* ============ 自習室(座席表+ログ) ============ */
+  .stage{margin:64px auto 0;max-width:880px;padding:0 16px}
+  .room{border:3px solid rgba(245,242,232,.22);border-radius:14px;overflow:hidden;background:rgba(22,48,42,.72);
+    box-shadow:0 24px 70px rgba(0,0,0,.45);position:relative}
+  .room-bar{display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:2px dashed rgba(245,242,232,.2);font-family:var(--hand)}
+  .room-bar .t{color:var(--yellow);font-size:1.05rem}
+  .room-bar .live{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--pink)}
+  .room-bar .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--pink);animation:breathe 1.4s infinite}
+  .imgchip{margin-left:auto;font-size:.7rem;color:var(--chalkfaint);font-family:var(--sans);
+    border:1px dashed rgba(245,242,232,.3);border-radius:20px;padding:2px 10px;white-space:nowrap}
+  /* 座席表 */
+  .seats-label{font-family:var(--hand);font-size:.82rem;color:var(--chalkfaint);padding:14px 22px 2px}
+  .seats-label b{color:var(--blue)}
+  .seats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px 20px 16px}
+  .seat-card{border:2px dashed rgba(245,242,232,.25);border-radius:10px;padding:10px 12px;font-family:var(--hand);
+    background:rgba(26,54,48,.5);transition:border-color .4s,background .4s;min-width:0}
+  .seat-card .nm{font-size:.92rem;color:var(--blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seat-card .sb{font-family:var(--pen);font-size:.78rem;color:var(--chalkdim);line-height:1.6;height:2.6em;overflow:hidden}
+  .seat-card .stt{font-size:.78rem;color:var(--chalkfaint)}
+  .seat-card.on{border-color:rgba(255,224,138,.65);background:rgba(255,224,138,.08)}
+  .seat-card.on .stt{color:var(--yellow)}
+  .seat-card.flash{animation:seatflash 1.2s ease}
+  @keyframes seatflash{0%{box-shadow:0 0 0 rgba(255,224,138,0)}25%{box-shadow:0 0 24px rgba(255,224,138,.5)}100%{box-shadow:0 0 0 rgba(255,224,138,0)}}
+  /* ログ */
+  #feed{list-style:none;height:300px;overflow:hidden;position:relative;padding:4px 0;border-top:2px dashed rgba(245,242,232,.2)}
+  #feed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:72px;background:linear-gradient(transparent,rgba(22,48,42,.96));pointer-events:none}
+  #feed li{display:flex;align-items:center;gap:13px;padding:11px 22px;animation:slide .4s ease}
   @keyframes slide{from{opacity:0;transform:translateY(-10px)}}
-  .seat{font-family:var(--hand);font-size:.95rem;color:var(--blue);width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .subj{font-family:var(--pen);flex:1;color:var(--chalk)}
-  .st{font-family:var(--hand);font-size:.9rem;white-space:nowrap}
+  .seat{font-family:var(--hand);font-size:.95rem;color:var(--blue);width:84px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+  .subj{font-family:var(--pen);flex:1;min-width:0;color:var(--chalk);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st{font-family:var(--hand);font-size:.9rem;white-space:nowrap;flex:none}
   .st.done{color:var(--yellow)}
   .st.now{color:var(--pink)}
+  .fire-btn{flex:none;display:inline-flex;align-items:center;gap:4px;font-family:var(--hand);font-size:.8rem;color:var(--chalkfaint);
+    background:rgba(245,242,232,.05);border:1.5px dashed rgba(245,242,232,.3);border-radius:999px;padding:2px 11px;cursor:pointer;position:relative;
+    transition:color .15s,border-color .15s}
+  .fire-btn:hover{color:var(--yellow);border-color:rgba(255,224,138,.6)}
+  .fire-btn.lit{color:var(--yellow);border-color:rgba(255,224,138,.7);background:rgba(255,224,138,.1)}
+  .fire-btn.pop{animation:firepop .35s cubic-bezier(.2,2,.4,1)}
+  @keyframes firepop{40%{transform:scale(1.3)}}
+  .fire-fly{position:absolute;left:50%;top:0;font-size:.9rem;pointer-events:none;animation:flyup .8s ease-out forwards}
+  @keyframes flyup{to{transform:translate(-50%,-34px) scale(1.5);opacity:0}}
+  #toast{position:absolute;left:50%;bottom:16px;transform:translate(-50%,20px);z-index:5;
+    font-family:var(--hand);font-size:.88rem;white-space:nowrap;
+    color:#20423a;background:var(--yellow);border-radius:12px;padding:8px 18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;
+    transition:opacity .35s,transform .35s cubic-bezier(.2,.9,.3,1)}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
 
-  section{padding:106px 0 0}
+  /* ============ sections ============ */
+  section{padding:104px 0 0}
   .eyebrow{font-family:var(--hand);font-size:1.05rem;color:var(--yellow);margin-bottom:14px;transform:rotate(-.5deg);display:inline-block}
-  h2{font-family:var(--hand);font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.6;color:var(--chalk)}
-  h2 .u{color:var(--yellow);border-bottom:4px solid var(--pink);padding-bottom:2px}
+  h2{font-family:var(--hand);font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.7;color:var(--chalk)}
+  h2 .u{color:var(--yellow);position:relative;white-space:nowrap}
+  h2 .u .chalkline path{animation:none;stroke-dashoffset:600}
+  .in h2 .u .chalkline path,.reveal.in .chalkline path{animation:drawline 1s cubic-bezier(.4,.2,.3,1) .5s forwards}
   .sec-lead{color:var(--chalkdim);margin-top:16px;font-size:1.02rem;max-width:38em}
   .sec-lead b{color:var(--chalk)}
-  .reveal{opacity:0;transform:translateY(22px) rotate(-.3deg);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal{opacity:0;transform:translateY(22px) rotate(-.3deg);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
   .reveal.in{opacity:1;transform:none}
 
-  .cards{display:grid;gap:18px;margin-top:42px;grid-template-columns:1fr}
-  @media(min-width:720px){.cards{grid-template-columns:repeat(3,1fr)}}
-  .card{border:2px dashed rgba(245,242,232,.3);border-radius:12px;padding:28px 24px;background:rgba(26,54,48,.4)}
-  .card:nth-child(1){transform:rotate(-.8deg)}.card:nth-child(3){transform:rotate(.8deg)}
-  .card .em{font-size:1.8rem;margin-bottom:10px}
-  .card h3{font-family:var(--hand);font-size:1.3rem;margin-bottom:8px;color:var(--yellow)}
-  .card p{font-size:.94rem;color:var(--chalkdim)}
+  /* 付箋カード */
+  .fusen{display:grid;gap:20px;margin-top:46px;grid-template-columns:1fr}
+  @media(min-width:720px){.fusen{grid-template-columns:repeat(3,1fr)}}
+  .fu{border-radius:4px;padding:30px 24px 26px;position:relative;color:#243c35;
+    box-shadow:0 10px 26px rgba(0,0,0,.32);transition:transform .2s}
+  .fu:hover{transform:translateY(-5px) rotate(0deg) !important}
+  .fu::before{content:"";position:absolute;top:-10px;left:50%;width:74px;height:22px;margin-left:-37px;
+    background:var(--tape);transform:rotate(-2deg);border-radius:2px}
+  .fu:nth-child(1){background:linear-gradient(180deg,#ffe9a3,#ffe08a);transform:rotate(-1.2deg)}
+  .fu:nth-child(2){background:linear-gradient(180deg,#ffb3aa,#ff9d92);transform:rotate(.8deg)}
+  .fu:nth-child(3){background:linear-gradient(180deg,#b7e2ec,#9fd3e0);transform:rotate(-.6deg)}
+  .fu .em{font-size:1.9rem;margin-bottom:8px}
+  .fu h3{font-family:var(--hand);font-size:1.3rem;margin-bottom:8px}
+  .fu p{font-family:var(--pen);font-size:.92rem;line-height:1.9;color:rgba(32,58,50,.85)}
 
-  .steps{margin-top:42px;display:grid;gap:16px}
-  .step{display:flex;gap:20px;align-items:baseline;border-bottom:2px dashed rgba(245,242,232,.2);padding-bottom:16px}
-  .step .n{font-family:var(--hand);font-size:1.8rem;color:var(--pink);flex:none;width:46px}
-  .step b{display:block;font-family:var(--hand);font-size:1.2rem;color:var(--chalk)}
-  .step span{font-size:.92rem;color:var(--chalkdim)}
+  /* この自習室のやくそく */
+  .yakusoku{margin-top:50px;border:2px dashed rgba(245,242,232,.3);border-radius:14px;padding:30px 26px;position:relative;background:rgba(26,54,48,.4)}
+  .yakusoku::before{content:"この自習室のやくそく";position:absolute;top:-16px;left:24px;font-family:var(--hand);
+    color:#20423a;background:var(--yellow);border-radius:8px;padding:2px 16px;font-size:.95rem;transform:rotate(-1deg)}
+  .yakusoku ul{list-style:none;display:grid;gap:14px;margin-top:8px}
+  @media(min-width:700px){.yakusoku ul{grid-template-columns:repeat(2,1fr)}}
+  .yakusoku li{display:flex;gap:12px;align-items:flex-start;font-size:.96rem;color:var(--chalkdim)}
+  .yakusoku li b{color:var(--chalk)}
+  .yakusoku .mark{flex:none;font-family:var(--hand);color:var(--pink);font-size:1.1rem}
 
-  .manifesto{margin-top:108px;text-align:center;padding:90px 24px;position:relative}
-  .manifesto::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 70% 80% at 50% 50%,rgba(255,224,138,.08),transparent 70%)}
-  .manifesto p{font-family:var(--hand);font-size:clamp(1.6rem,5vw,2.8rem);line-height:1.9;color:var(--chalk)}
-  .manifesto p .u{color:var(--yellow);border-bottom:5px solid var(--pink)}
-  .manifesto small{display:block;margin-top:20px;font-size:.95rem;color:var(--chalkdim)}
+  /* steps = ノート */
+  .steps{margin-top:44px;display:grid;gap:0;border:2px dashed rgba(245,242,232,.25);border-radius:14px;overflow:hidden;background:rgba(26,54,48,.35)}
+  .step{display:flex;gap:20px;align-items:baseline;padding:22px 26px;border-bottom:2px dashed rgba(245,242,232,.18)}
+  .step:last-child{border-bottom:none}
+  .step .n{font-family:var(--hand);font-size:1.5rem;color:#20423a;flex:none;width:44px;height:44px;border-radius:50%;
+    background:var(--pink);display:inline-flex;align-items:center;justify-content:center;transform:rotate(-4deg);
+    box-shadow:2px 2px 0 rgba(0,0,0,.25);align-self:flex-start}
+  .step b{display:block;font-family:var(--hand);font-size:1.22rem;color:var(--chalk)}
+  .step span{font-size:.94rem;color:var(--chalkdim)}
 
+  /* ============ manifesto + 花丸 ============ */
+  .manifesto{margin-top:104px;text-align:center;padding:92px 24px;position:relative;overflow:hidden}
+  .manifesto::before{content:"";position:absolute;inset:0;z-index:-1;
+    background:radial-gradient(ellipse 70% 80% at 50% 50%,rgba(255,224,138,.08),transparent 70%)}
+  .manifesto p{font-family:var(--hand);font-size:clamp(1.6rem,5vw,2.8rem);line-height:2;color:var(--chalk);position:relative;z-index:1}
+  .manifesto p .u{color:var(--yellow);position:relative;white-space:nowrap}
+  .manifesto small{display:block;margin-top:20px;font-size:.95rem;color:var(--chalkdim);font-family:var(--hand)}
+  .hanamaru{position:absolute;right:10%;top:14px;width:120px;height:120px;pointer-events:none;transform:rotate(8deg)}
+  .hanamaru path{stroke:var(--pink);stroke-width:3.5;fill:none;stroke-linecap:round;
+    stroke-dasharray:900;stroke-dashoffset:900}
+  .manifesto.in .hanamaru path{animation:drawline 1.6s cubic-bezier(.4,.2,.3,1) .7s forwards}
+  @media(max-width:760px){.hanamaru{width:80px;height:80px;right:4%;top:8px}}
+
+  /* arenas */
   .arenas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
   .arena{font-family:var(--hand);font-size:1rem;border:2px dashed rgba(245,242,232,.35);color:var(--chalkdim);border-radius:30px;padding:7px 20px}
   .arena.open{color:#20423a;background:var(--yellow);border-color:var(--yellow)}
   .arena.open::after{content:" ◎受付中";font-size:.72rem}
 
-  .waitlist{margin-top:112px}
-  .wl{position:relative;text-align:center;border:3px dashed rgba(255,224,138,.5);border-radius:16px;padding:70px 28px;background:rgba(26,54,48,.6)}
+  /* FAQ = 質問箱 */
+  .faq{margin-top:44px;display:grid;gap:12px}
+  .faq details{border:2px dashed rgba(245,242,232,.28);border-radius:12px;overflow:hidden;background:rgba(26,54,48,.4);transition:border-color .25s}
+  .faq details[open]{border-color:rgba(255,224,138,.55)}
+  .faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:17px 20px;
+    font-family:var(--hand);font-size:1.02rem;color:var(--chalk);user-select:none}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::before{content:"Q";flex:none;font-family:var(--hand);font-size:.95rem;color:#20423a;
+    width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    background:var(--blue);transform:rotate(-4deg);box-shadow:1px 2px 0 rgba(0,0,0,.2)}
+  .faq summary::after{content:"＋";margin-left:auto;font-family:var(--hand);color:var(--chalkfaint);font-size:1.1rem;transition:transform .25s}
+  .faq details[open] summary::after{transform:rotate(45deg);color:var(--yellow)}
+  .faq .a{padding:0 20px 18px 64px;font-size:.94rem;color:var(--chalkdim)}
+  .faq .a b{color:var(--chalk)}
+
+  /* ============ waitlist = 一期生募集ポスター ============ */
+  .waitlist{margin-top:110px}
+  .wl{position:relative;text-align:center;border:3px dashed rgba(255,224,138,.55);border-radius:18px;padding:72px 28px;background:rgba(26,54,48,.62)}
+  .wl::before,.wl::after{content:"";position:absolute;width:90px;height:26px;background:var(--tape);border-radius:2px}
+  .wl::before{top:-12px;left:10%;transform:rotate(-6deg)}
+  .wl::after{top:-12px;right:10%;transform:rotate(5deg)}
+  .wl .poster-tag{display:inline-block;font-family:var(--hand);font-size:.95rem;color:#20423a;background:var(--pink);
+    border-radius:8px;padding:3px 18px;margin-bottom:20px;transform:rotate(-1.5deg);box-shadow:2px 2px 0 rgba(0,0,0,.22)}
   .wl h2{font-size:clamp(1.7rem,5vw,2.5rem)}
-  .wl .btn-lg{margin-top:28px}
+  .wl .sec-lead{text-align:center;margin-left:auto;margin-right:auto}
+  .wl .btn-lg{margin-top:30px}
   .wl-fine{margin-top:16px;font-size:.85rem;color:var(--chalkfaint)}
 
   footer{margin-top:88px;padding:28px 0 50px;border-top:2px dashed rgba(245,242,232,.2);font-size:.85rem;color:var(--chalkfaint)}
   .foot{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center}
   footer a{color:var(--chalkdim);text-decoration:none}footer a:hover{color:var(--yellow)}
+  .bip{font-family:var(--hand);font-size:.82rem}
+  .bip b{color:var(--yellow)}
+
+  /* sticky mobile CTA */
+  #sticky-cta{position:fixed;left:12px;right:12px;bottom:12px;z-index:65;display:none;align-items:center;gap:12px;
+    background:rgba(26,54,48,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:2px dashed rgba(255,224,138,.5);border-radius:14px;padding:10px 12px 10px 18px;
+    box-shadow:0 12px 40px rgba(0,0,0,.5);transform:translateY(130%);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
+  #sticky-cta.show{transform:none}
+  #sticky-cta .s-txt{font-family:var(--hand);font-size:.86rem;line-height:1.5;flex:1;min-width:0;color:var(--chalk)}
+  #sticky-cta .s-txt small{display:block;font-family:var(--pen);color:var(--chalkfaint);font-size:.68rem}
+  #sticky-cta .btn{flex:none;font-size:.85rem;padding:10px 18px;border-radius:8px}
+  @media(max-width:720px){#sticky-cta{display:flex}}
 
   @media(max-width:640px){
     .hero{padding:112px 0 24px}
-    .btn-lg{width:100%;max-width:340px}
+    .lead{padding:0 4px}
+    .cta-row .btn-lg{width:100%;max-width:340px;font-size:.98rem;padding:14px 16px;white-space:nowrap}
+    .nav-live{display:none}
     .count{padding:12px 20px}.count .num{font-size:2rem}
-    .stage{margin-top:48px}
-    #feed li{padding:11px 16px;gap:10px}.seat{width:70px;font-size:.85rem}
+    .stage{margin-top:46px;padding:0 12px}
+    .seats{grid-template-columns:repeat(2,1fr);padding:8px 14px 14px;gap:8px}
+    #feed{height:276px}
+    #feed li{padding:10px 14px;gap:10px}
+    .seat{width:64px;font-size:.85rem}
+    .st{font-size:.8rem}
     section{padding:78px 0 0}
-    .card:nth-child(n){transform:none}
-    .manifesto{padding:62px 18px;margin-top:80px}
-    .wl{padding:52px 20px}
+    .fusen{margin-top:38px;gap:24px}
+    .yakusoku{padding:26px 18px}
+    .steps{margin-top:36px}
+    .step{padding:18px;gap:14px}
+    .step .n{width:38px;height:38px;font-size:1.2rem}
+    .manifesto{padding:62px 18px;margin-top:78px}
+    .faq summary{padding:14px 15px;font-size:.95rem;gap:11px}
+    .faq .a{padding:0 15px 15px 56px}
+    .waitlist{margin-top:84px}
+    .wl{padding:50px 18px 54px}
+    .wl .btn-lg{width:100%;max-width:340px;font-size:.98rem;padding:14px 16px;white-space:nowrap}
+    footer{padding:24px 0 96px}
     .foot{flex-direction:column;gap:10px}
   }
-  @media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+    .reveal{opacity:1;transform:none}
+    .chalkline path,.hanamaru path{stroke-dashoffset:0;animation:none}
+  }
 </style>
 </head>
 <body>
 <div class="board"></div>
+<div class="stars" aria-hidden="true">
+  <i style="top:8%;left:12%"></i><i style="top:14%;left:78%;animation-delay:.7s"></i>
+  <i style="top:5%;left:46%;animation-delay:1.4s"></i><i style="top:22%;left:90%;animation-delay:2s"></i>
+  <i style="top:18%;left:30%;animation-delay:1s"></i><i style="top:9%;left:64%;animation-delay:2.6s"></i>
+</div>
+<div id="progress" aria-hidden="true"></div>
 
 <nav><div class="nav-in">
   <a class="logo" href="#"><span class="m">✎</span>Netero</a>
+  <span class="nav-live" aria-hidden="true">いま <b id="nav-count">—</b> 人が自習中</span>
   <a class="btn btn-chalk btn-sm" href="#waitlist">ウェイトリスト</a>
 </div></nav>
 
+<!-- ============================== HERO ============================== -->
 <header class="hero"><div class="wrap">
   <div class="chip">ARENA ー 大学受験</div>
-  <h1>隣の席が、<br><span class="u">ペンを止めない。</span></h1>
+  <h1>隣の席が、<br><span class="u">ペンを止めない。<svg class="chalkline" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 9 Q 60 4 120 8 T 296 7"/></svg></span></h1>
   <p class="lead">Netero は「<b>大学受験</b>」に本気の受験生だけの、終わらない自習室。<br>全員の勉強がリアルタイムで流れる。<b>だから、あなたも止まれない。</b></p>
   <div class="cta-row">
     <a class="btn btn-chalk btn-lg" href="#waitlist">ウェイトリストに登録する ✎</a>
-    <span class="cta-note">先行アクセスは登録順に少人数ずつ</span>
+    <span class="cta-note">先行アクセスは登録順に少人数ずつ ／ メールだけで30秒</span>
+    <span class="study-now"><span class="dot"></span>いま <b id="study-count">—</b> 人が自習中(画面イメージ)</span>
   </div>
   <div class="count">
-    <span class="lbl">共通テストまで</span><span class="num">あと183</span><span class="u2">日</span>
+    <span class="lbl">共通テストまで</span><span class="num">あと<span id="days">---</span></span><span class="u2">日</span>
+    <span class="sub">※ 2027年1月16日(土) まで</span>
   </div>
 
+  <!-- 自習室 -->
   <div class="stage">
-    <div class="desk">
-      <div class="desk-bar"><span class="t">自習室ログ</span><span class="live">みんな勉強中</span><span class="imgchip">画面イメージ</span></div>
+    <div class="room">
+      <div class="room-bar"><span class="t">夜の自習室</span><span class="live">みんな勉強中</span><span class="imgchip">画面イメージ</span></div>
+      <div class="seats-label">座席表 — <b>隣の席</b>は、いつも動いてる</div>
+      <div class="seats" id="seats"></div>
       <ul id="feed"></ul>
+      <div id="toast" role="status"></div>
     </div>
   </div>
 </div></header>
 
+<!-- ============================== WHY ============================== -->
 <section class="wrap"><div class="reveal">
   <div class="eyebrow">◎ どうして続くの？</div>
-  <h2>一人の部屋だと、<span class="u">手が止まる。</span></h2>
+  <h2>一人の部屋だと、<span class="u">手が止まる。<svg class="chalkline" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 9 Q 60 4 120 8 T 296 7"/></svg></span></h2>
   <p class="sec-lead">家で集中できないのは、あなたのせいじゃない。<b>誰も見ていない</b>から、スマホに手が伸びる。<br>自習室や図書館で捗るのは、隣の人がペンを走らせているから。Netero はその「隣の席」を、24時間ぶん用意する。同じ大学を目指す誰かが、今この瞬間も問題を解いている。</p>
 </div>
-<div class="cards">
-  <div class="card reveal"><div class="em">👀</div><h3>勉強は、全部見える</h3><p>「英単語100個」「数III 微分 20問」——やったこともサボったことも、全員に見える。だから机に向かう。</p></div>
-  <div class="card reveal"><div class="em">🏫</div><h3>同じ志望の仲間だけ</h3><p>アリーナは目標別。同じ大学・同じ受験を戦う人の気配だけが届く。ライバルであり、戦友。</p></div>
-  <div class="card reveal"><div class="em">🔥</div><h3>連続日数が、自信になる</h3><p>毎日の勉強がカレンダーに積み上がる。「◯日連続」を切らしたくない——それが明日の一歩を連れてくる。</p></div>
+<div class="fusen">
+  <div class="fu reveal"><div class="em">👀</div><h3>勉強は、全部見える</h3><p>「英単語100個」「数III 微分 20問」——やったこともサボったことも、全員に見える。だから机に向かう。</p></div>
+  <div class="fu reveal" style="--d:.08s"><div class="em">🏫</div><h3>同じ志望の仲間だけ</h3><p>アリーナは目標別。同じ大学・同じ受験を戦う人の気配だけが届く。ライバルであり、戦友。</p></div>
+  <div class="fu reveal" style="--d:.16s"><div class="em">🔥</div><h3>連続日数が、自信になる</h3><p>毎日の勉強がカレンダーに積み上がる。「◯日連続」を切らしたくない——それが明日の一歩を連れてくる。</p></div>
+</div>
+<div class="yakusoku reveal">
+  <ul>
+    <li><span class="mark">✿</span><span><b>コメント欄はありません。</b>マウントも説教も届かない。あるのは🔥だけ。</span></li>
+    <li><span class="mark">✿</span><span><b>比べるのは、勉強量が近い人とだけ。</b>週ごとに5〜10人の小さなグループで競う。</span></li>
+    <li><span class="mark">✿</span><span><b>サボっても罰はなし。</b>ただ、記録が止まる。それが一番もったいない。</span></li>
+    <li><span class="mark">✿</span><span><b>順位は毎週リセット。</b>月曜日、みんなまた同じスタートラインから。</span></li>
+  </ul>
 </div></section>
 
+<!-- ============================== HOW ============================== -->
 <section class="wrap"><div class="reveal">
   <div class="eyebrow">◎ やり方はかんたん</div>
-  <h2>やることは、<span class="u">4つだけ。</span></h2>
+  <h2>やることは、<span class="u">4つだけ。<svg class="chalkline" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 9 Q 60 4 120 8 T 296 7"/></svg></span></h2>
 </div>
-<div class="steps">
-  <div class="step reveal"><span class="n">1</span><div><b>自習室（アリーナ）に入る</b><span>「大学受験」へ。登録したらすぐ、みんなの勉強が流れてくる。</span></div></div>
-  <div class="step reveal"><span class="n">2</span><div><b>今日やることを書く</b><span>単語・過去問・演習。何をやるかは自由。それが全員に見える。</span></div></div>
-  <div class="step reveal"><span class="n">3</span><div><b>こなす。自習室に流れる</b><span>終わらせるたび、みんなのタイムラインに流れて🔥が付く。</span></div></div>
-  <div class="step reveal"><span class="n">4</span><div><b>週末、リーグの結果が出る</b><span>勉強量が近い5〜10人で競争。上がるか、落ちるか。また月曜から。</span></div></div>
+<div class="steps reveal">
+  <div class="step"><span class="n">1</span><div><b>自習室(アリーナ)に入る</b><span>「大学受験」へ。入ったらすぐ、みんなの勉強が流れてくる。</span></div></div>
+  <div class="step"><span class="n">2</span><div><b>今日やることを書く</b><span>単語・過去問・演習。何をやるかは自由。それが全員に見える。</span></div></div>
+  <div class="step"><span class="n">3</span><div><b>こなす。自習室に流れる</b><span>終わらせるたび、みんなのタイムラインに流れて🔥が付く。</span></div></div>
+  <div class="step"><span class="n">4</span><div><b>週末、リーグの結果が出る</b><span>勉強量が近い5〜10人で競争。上がるか、落ちるか。また月曜から。</span></div></div>
 </div></section>
 
+<!-- ============================== MANIFESTO ============================== -->
 <div class="manifesto reveal">
-  <p>才能で受かるんじゃない。<br><span class="u">机に向かった日数</span>で受かる。</p>
+  <p>才能で受かるんじゃない。<br><span class="u">机に向かった日数<svg class="chalkline" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 9 Q 60 4 120 8 T 296 7"/></svg></span>で受かる。</p>
   <small>——だから、今日も座ろう。</small>
+  <svg class="hanamaru" viewBox="0 0 120 120" aria-hidden="true">
+    <path d="M60 14 C 90 6 112 30 106 58 C 118 66 112 92 92 96 C 88 114 60 118 48 106 C 26 114 6 96 12 74 C 0 62 8 36 28 34 C 30 16 48 8 60 14 M60 30 C 78 26 94 42 90 60 C 86 78 66 86 50 78 C 34 70 32 48 44 38 C 50 32 56 30 60 30"/>
+  </svg>
 </div>
 
+<!-- ============================== ARENAS ============================== -->
 <section class="wrap"><div class="reveal">
   <div class="eyebrow">◎ ほかのアリーナ</div>
-  <h2>自習室は、<span class="u">順次オープン。</span></h2>
+  <h2>自習室は、<span class="u">順次オープン。<svg class="chalkline" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M4 9 Q 60 4 120 8 T 296 7"/></svg></span></h2>
   <p class="sec-lead">人が集まったテーマから開いていく。あなたの目標がまだ無いなら、<b>あなたが一番乗り</b>。</p>
   <div class="arenas" id="arenas"></div>
 </div></section>
 
+<!-- ============================== FAQ ============================== -->
+<section class="narrow"><div class="reveal">
+  <div class="eyebrow">◎ 質問箱</div>
+  <h2>よくある質問</h2>
+</div>
+<div class="faq reveal" id="faq"></div></section>
+
+<!-- ============================== WAITLIST ============================== -->
 <section class="waitlist wrap" id="waitlist"><div class="wl reveal">
-  <div class="eyebrow" style="color:var(--yellow)">◎ 先行案内</div>
+  <span class="poster-tag">一期生 募集中</span>
   <h2>「大学受験」アリーナ<br>ウェイトリスト受付中</h2>
-  <p class="sec-lead" style="text-align:center;margin:14px auto 0">先行アクセスは登録順に少人数ずつご案内します。<br>最初のメンバーは、この自習室の一期生。</p>
-  <a class="btn btn-chalk btn-lg" id="form" href="https://docs.google.com/forms/d/e/1FAIpQLSdIE_GBbz9zDeQZ5djsvLka9fIMSu9jH7fqIwDt7nq78CUT4Q/viewform?usp=dialog" target="_blank" rel="noopener">ウェイトリストに登録する ✎</a>
-  <p class="wl-fine">登録は無料。メールアドレスといくつかの質問だけ。</p>
+  <p class="sec-lead">先行アクセスは登録順に少人数ずつご案内します。<br>最初のメンバーは、この自習室の<b>一期生</b>。</p>
+  <a class="btn btn-chalk btn-lg" href="https://docs.google.com/forms/d/e/1FAIpQLSdIE_GBbz9zDeQZ5djsvLka9fIMSu9jH7fqIwDt7nq78CUT4Q/viewform?usp=dialog" target="_blank" rel="noopener">ウェイトリストに登録する ✎</a>
+  <p class="wl-fine">登録は無料。メールアドレスといくつかの質問だけ。ご案内以外には使いません。</p>
 </div></section>
 
 <footer><div class="wrap foot">
   <a class="logo" href="#" style="font-size:1.2rem"><span class="m">✎</span>Netero</a>
-  <div><a href="https://x.com/chmod_777_prod" target="_blank" rel="noopener">X / @chmod_777_prod</a></div>
+  <div class="bip">つくってる様子を公開中 → <a href="https://x.com/chmod_777_prod" target="_blank" rel="noopener"><b>X / @chmod_777_prod</b></a></div>
   <div>© 2026 Netero</div>
 </div></footer>
 
+<!-- sticky mobile CTA -->
+<div id="sticky-cta" aria-hidden="true">
+  <div class="s-txt">「大学受験」アリーナ<small>一期生 募集中 — 登録順にご案内</small></div>
+  <a class="btn btn-chalk" href="#waitlist">登録する ✎</a>
+</div>
+
 <script>
+const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $=id=>document.getElementById(id);
+
+/* ---- 共通テストまでの日数(実計算) ---- */
+(function(){
+  const target=new Date(2027,0,16);          // 2027-01-16 共通テスト初日
+  const now=new Date();
+  const days=Math.max(0,Math.ceil((target-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000));
+  const el=$("days");
+  if(REDUCED){el.textContent=days;return;}
+  const t0=performance.now();
+  (function tick(t){
+    const p=Math.min(1,(t-t0)/1100);
+    el.textContent=Math.round(days*(1-Math.pow(1-p,3)));
+    if(p<1)requestAnimationFrame(tick);
+  })(t0);
+})();
+
+/* ---- データ ---- */
 const STUDY=[
   {seat:"はると",subj:"英単語 ターゲット 100語",s:"done"},
   {seat:"みお",subj:"数III 微分 20問",s:"now"},
@@ -230,16 +435,119 @@ const STUDY=[
   {seat:"ひなの",subj:"英作文 3題 添削待ち",s:"done"},
 ];
 const LABEL={done:"やった！",now:"勉強中…"};
-const feed=document.getElementById("feed");let i=0;
-function push(){const t=STUDY[i%STUDY.length];const li=document.createElement("li");
+
+/* ---- 座席表 ---- */
+const seats=$("seats");
+const SEATN=8;
+function seatHTML(t,on){
+  return `<div class="seat-card ${on?"on":""}">
+    <div class="nm">${t.seat}</div>
+    <div class="sb">${t.subj}</div>
+    <div class="stt">${on?"✎ 勉強中":"すこし休憩"}</div>
+  </div>`;
+}
+let seatIdx=[];
+function renderSeats(){
+  seatIdx=[];let html="";
+  for(let i=0;i<SEATN;i++){
+    const t=STUDY[(i*3+1)%STUDY.length];
+    const on=Math.random()<.7;
+    seatIdx.push(t);html+=seatHTML(t,on);
+  }
+  seats.innerHTML=html;
+}
+renderSeats();
+/* 隣の席が動く */
+setInterval(()=>{
+  const cards=seats.querySelectorAll(".seat-card");
+  const i=Math.floor(Math.random()*cards.length);
+  const c=cards[i];
+  const t=STUDY[Math.floor(Math.random()*STUDY.length)];
+  c.querySelector(".sb").textContent=t.subj;
+  c.classList.add("on");
+  c.querySelector(".stt").textContent="✎ 勉強中";
+  c.classList.remove("flash");void c.offsetWidth;c.classList.add("flash");
+},5200);
+
+/* ---- 自習室ログ(🔥=がんばれ!) ---- */
+const feed=$("feed");let fi=0;
+function makeFire(initial){
+  const b=document.createElement("button");
+  b.className="fire-btn";b.type="button";b.setAttribute("aria-label","🔥を送る");
+  let n=initial;b.innerHTML=`🔥<span class="n">${n}</span>`;
+  b.addEventListener("click",()=>{
+    n++;b.querySelector(".n").textContent=n;
+    b.classList.add("lit");b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");
+    if(!REDUCED){const f=document.createElement("span");f.className="fire-fly";f.textContent="🔥";
+      b.appendChild(f);setTimeout(()=>f.remove(),800);}
+  });
+  return b;
+}
+function push(){
+  const t=STUDY[fi%STUDY.length];
+  const li=document.createElement("li");
   li.innerHTML=`<span class="seat">${t.seat}</span><span class="subj">${t.subj}</span><span class="st ${t.s}">${LABEL[t.s]}</span>`;
-  feed.prepend(li);while(feed.children.length>7)feed.removeChild(feed.lastChild);i++;}
-for(let k=0;k<6;k++)push();setInterval(push,2400);
+  li.appendChild(makeFire(t.s==="done"?1+Math.floor(Math.random()*6):Math.floor(Math.random()*3)));
+  feed.prepend(li);
+  while(feed.children.length>7)feed.removeChild(feed.lastChild);
+  fi++;
+}
+for(let k=0;k<6;k++)push();
+setInterval(push,2600);
+/* 🔥の気配 */
+setInterval(()=>{
+  const btns=feed.querySelectorAll(".fire-btn");if(!btns.length)return;
+  const b=btns[Math.floor(Math.random()*btns.length)];
+  const n=b.querySelector(".n");n.textContent=+n.textContent+1;
+  b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");
+},4500);
 
+/* ---- 応援トースト(やさしい) ---- */
+const CHEER=["みお さん、数IIIを追い上げ中！","はると さん、今日も連続記録更新 🔥","そうた さん、過去問1年ぶん完走！"];
+let ti=0,toastTimer=null;
+setInterval(()=>{
+  $("toast").textContent="✎ "+CHEER[ti++%CHEER.length];
+  $("toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>$("toast").classList.remove("show"),3400);
+},11000);
+
+/* ---- カウンタ(演出値) ---- */
+let studying=96+Math.floor(Math.random()*30);
+function renderCount(){$("nav-count").textContent=studying;$("study-count").textContent=studying;}
+renderCount();
+setInterval(()=>{studying=Math.max(70,studying+(Math.random()<.5?-1:1)*(1+Math.floor(Math.random()*2)));renderCount();},4000);
+
+/* ---- arenas / FAQ ---- */
 const ARENAS=[["AIで稼ぐ",1],["大学受験",1],["資格試験",1],["個人開発",1],["TOEIC",0],["筋トレ",0]];
-document.getElementById("arenas").innerHTML=ARENAS.map(([n,o])=>`<span class="arena ${o?"open":""}">${n}</span>`).join("");
+$("arenas").innerHTML=ARENAS.map(([n,o])=>`<span class="arena ${o?"open":""}">${n}</span>`).join("");
+const FAQ=[
+  {q:"招待はいつ来ますか？",a:"登録順に、最初のグループ(5〜10人)が組める人数ずつご案内します。早く登録するほど<b>一期生</b>に近づきます。"},
+  {q:"無料ですか？",a:"ウェイトリストもβも<b>無料</b>です。正式版も基本機能は無料の予定です。"},
+  {q:"サボったらどうなりますか？",a:"罰はありません。ただ、連続記録が止まって、それが自分にも周りにも見えるだけ。<b>「もったいない」が明日の自分を助けてくれます。</b>"},
+  {q:"登録に何が必要ですか？",a:"メールアドレスと、いくつかのかんたんな質問だけ。<b>30秒</b>で終わります。ご案内以外には使いません。"},
+];
+$("faq").innerHTML=FAQ.map(f=>`<details><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join("");
 
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.14});
+/* ---- scroll: progress + sticky ---- */
+const progress=$("progress"),sticky=$("sticky-cta");
+let ticking=false;
+addEventListener("scroll",()=>{
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(()=>{
+    const h=document.documentElement;
+    const max=h.scrollHeight-h.clientHeight;
+    progress.style.width=(max>0?(h.scrollTop/max)*100:0)+"%";
+    const wl=$("waitlist").getBoundingClientRect();
+    sticky.classList.toggle("show",h.scrollTop>560&&wl.top>innerHeight*.7);
+    ticking=false;
+  });
+},{passive:true});
+
+/* ---- reveal ---- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}
+}),{threshold:.14});
 document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 </script>
 <!-- floating arena-shuffle bot -->
@@ -270,7 +578,7 @@ document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
   #nbot:hover .nbot-bubble,#nbot.nbot-peek .nbot-bubble{opacity:1;transform:none}
   #nbot:hover{animation-play-state:paused}
   @media(prefers-reduced-motion:reduce){#nbot{animation:none}.nbot-eye{animation:none}}
-  @media(max-width:640px){#nbot{width:60px;height:66px;right:14px;bottom:14px}.nbot-bubble{display:none}}
+  @media(max-width:720px){#nbot{width:60px;height:66px;right:14px;bottom:78px}.nbot-bubble{display:none}}
 </style>
 <script>
 (function(){var ARENAS=["ai-earn","shikaku","indie","juken"],HERE="juken";

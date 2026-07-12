@@ -8,20 +8,22 @@
 <meta property="og:title" content="Netero — 「AIで稼ぐ」アリーナ">
 <meta property="og:description" content="全員のタスクが公開で流れる。隠す場所はないから、続く。ウェイトリスト受付中。">
 <meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #050507;
     --bg2: #0a0a0f;
     --card: #0e0e15;
-    --card2: #12121b;
+    --card2: #13131c;
     --line: rgba(255,255,255,.07);
-    --line2: rgba(255,255,255,.12);
-    --text: #f2f2f5;
-    --dim: #9a9aa8;
-    --faint: #5c5c6b;
+    --line2: rgba(255,255,255,.13);
+    --text: #f4f4f7;
+    --dim: #9d9dab;
+    --faint: #5e5e6e;
+    --ash: #3c3c47;
     --ember: #ff4d1c;
     --ember2: #ff9a3c;
     --gold: #ffc24d;
@@ -41,29 +43,27 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
-  ::selection { background: rgba(255,77,28,.35); }
+  ::selection { background: rgba(255,77,28,.4); }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
   .wrap-narrow { max-width: 780px; margin: 0 auto; padding: 0 24px; }
 
-  /* ===== atmosphere ===== */
-  .atmosphere { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
-  .blob {
-    position: absolute; border-radius: 50%; filter: blur(90px); opacity: .5;
-    will-change: transform;
-  }
+  /* ===================== atmosphere ===================== */
+  #sparks { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .atmosphere { position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; will-change: transform; }
   .blob-1 {
-    width: 640px; height: 640px; top: -280px; left: 50%; margin-left: -320px;
+    width: 680px; height: 680px; top: -300px; left: 50%; margin-left: -340px;
     background: radial-gradient(circle, rgba(255,77,28,.5), transparent 65%);
     animation: drift1 26s ease-in-out infinite alternate;
   }
   .blob-2 {
-    width: 460px; height: 460px; top: 380px; right: -230px;
-    background: radial-gradient(circle, rgba(255,154,60,.22), transparent 65%);
+    width: 460px; height: 460px; top: 400px; right: -230px;
+    background: radial-gradient(circle, rgba(255,154,60,.2), transparent 65%);
     animation: drift2 34s ease-in-out infinite alternate;
   }
   .blob-3 {
-    width: 420px; height: 420px; top: 1200px; left: -240px;
-    background: radial-gradient(circle, rgba(255,77,28,.16), transparent 65%);
+    width: 440px; height: 440px; top: 1300px; left: -260px;
+    background: radial-gradient(circle, rgba(255,77,28,.15), transparent 65%);
     animation: drift1 40s ease-in-out infinite alternate-reverse;
   }
   @keyframes drift1 { to { transform: translate(60px, 50px) scale(1.12); } }
@@ -71,18 +71,23 @@
   .gridlines {
     position: absolute; inset: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
     background-size: 72px 72px;
     mask-image: radial-gradient(ellipse 90% 55% at 50% 0%, #000 30%, transparent 75%);
     -webkit-mask-image: radial-gradient(ellipse 90% 55% at 50% 0%, #000 30%, transparent 75%);
   }
   .noise {
-    position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: .05;
+    position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: .045;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
   }
 
-  /* ===== nav ===== */
+  /* ===================== nav ===================== */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+    background: var(--grad); z-index: 55;
+    box-shadow: 0 0 12px rgba(255,122,40,.8);
+  }
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 50;
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -91,7 +96,7 @@
   }
   .nav-in {
     max-width: 1080px; margin: 0 auto; padding: 0 24px;
-    height: 60px; display: flex; align-items: center; justify-content: space-between;
+    height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   }
   .logo {
     font-family: var(--font-en); font-weight: 900; font-size: 1.14rem; letter-spacing: -.02em;
@@ -103,27 +108,33 @@
     box-shadow: 0 0 18px rgba(255,77,28,.5);
     font-size: .8rem; color: #170a02;
   }
+  .nav-live {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: .68rem; color: var(--dim); letter-spacing: .04em;
+  }
+  .nav-live b { color: var(--ember2); font-weight: 700; }
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     text-decoration: none; font-weight: 800; font-family: var(--font-jp);
-    border-radius: 12px; cursor: pointer; border: none;
-    transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    border-radius: 12px; cursor: pointer; border: none; position: relative; overflow: hidden;
+    transition: transform .16s ease, box-shadow .16s ease;
   }
   .btn-fire {
     color: #170a02; background: var(--grad);
     box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 8px 32px rgba(255,77,28,.38);
   }
+  .btn-fire::after {
+    content: ""; position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+    transform: skewX(-20deg); transition: left .5s ease;
+  }
+  .btn-fire:hover::after { left: 130%; }
   .btn-fire:hover { transform: translateY(-2px); box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 14px 44px rgba(255,77,28,.55); }
   .btn-sm { font-size: .8rem; padding: 9px 18px; border-radius: 10px; }
-  .btn-lg { font-size: 1.05rem; padding: 17px 36px; }
-  .btn-ghost {
-    color: var(--dim); font-size: .82rem; font-weight: 600;
-    border: 1px solid var(--line2); background: rgba(255,255,255,.02); padding: 9px 18px;
-  }
-  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
+  .btn-lg { font-size: 1.05rem; padding: 17px 38px; }
 
-  /* ===== hero ===== */
-  .hero { padding: 148px 0 40px; text-align: center; position: relative; }
+  /* ===================== hero ===================== */
+  .hero { padding: 150px 0 40px; text-align: center; position: relative; }
   .badge {
     display: inline-flex; align-items: center; gap: 9px;
     font-size: .8rem; font-weight: 700; letter-spacing: .04em;
@@ -133,7 +144,7 @@
     border-radius: 999px; padding: 7px 18px; margin-bottom: 34px;
     box-shadow: 0 0 24px rgba(255,77,28,.12);
   }
-  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--ember); position: relative; }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--ember); position: relative; flex: none; }
   .pulse::after {
     content: ""; position: absolute; inset: -5px; border-radius: 50%;
     border: 1px solid var(--ember); animation: ring 1.8s ease-out infinite;
@@ -141,12 +152,12 @@
   @keyframes ring { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
 
   h1 {
-    font-size: clamp(2.15rem, 6.8vw, 4.15rem);
-    font-weight: 900; line-height: 1.32; letter-spacing: .005em;
+    font-size: clamp(2.15rem, 6.8vw, 4.3rem);
+    font-weight: 900; line-height: 1.3; letter-spacing: .005em;
   }
-  h1 .l { display: block; overflow: hidden; }
-  h1 .l > span { display: inline-block; transform: translateY(110%); animation: rise .9s cubic-bezier(.2,.75,.2,1) forwards; }
-  h1 .l:nth-child(2) > span { animation-delay: .12s; }
+  h1 .l { display: block; overflow: hidden; padding-bottom: .08em; }
+  h1 .l > span { display: inline-block; transform: translateY(112%); animation: rise .9s cubic-bezier(.2,.75,.2,1) forwards; }
+  h1 .l:nth-child(2) > span { animation-delay: .14s; }
   @keyframes rise { to { transform: translateY(0); } }
   .fire-text {
     background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -162,21 +173,30 @@
   .hero-cta { margin-top: 38px; display: flex; flex-direction: column; align-items: center; gap: 14px; animation: fadeup 1s .5s both; }
   .cta-sub { font-size: .78rem; color: var(--faint); letter-spacing: .05em; }
   .cta-sub b { color: var(--dim); }
+  .working-now {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 4px;
+    font-family: var(--font-mono); font-size: .72rem; color: var(--faint);
+  }
+  .working-now .dot { width: 6px; height: 6px; border-radius: 50%; background: #7dd87d; box-shadow: 0 0 8px #7dd87d; animation: breathe 2.4s ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity: .4; } }
+  .working-now b { color: var(--dim); font-weight: 700; }
 
-  /* ===== app demo frame ===== */
-  .stage { position: relative; margin: 74px auto 0; max-width: 960px; padding: 0 16px; animation: fadeup 1.1s .65s both; }
+  /* ===================== app demo ===================== */
+  .stage { position: relative; margin: 76px auto 0; max-width: 960px; padding: 0 16px; animation: fadeup 1.1s .65s both; perspective: 1400px; }
   .stage::before {
-    content: ""; position: absolute; inset: -70px -30px auto; height: 420px; z-index: -1;
+    content: ""; position: absolute; inset: -70px 0 auto; height: 420px; z-index: -1;
     background: radial-gradient(ellipse 60% 100% at 50% 20%, rgba(255,77,28,.22), transparent 70%);
     filter: blur(30px);
   }
   .app {
-    border-radius: 20px; overflow: hidden;
+    border-radius: 20px; overflow: hidden; position: relative;
     border: 1px solid transparent;
     background:
       linear-gradient(var(--card), var(--card)) padding-box,
       linear-gradient(160deg, rgba(255,154,60,.5), rgba(255,255,255,.09) 30%, rgba(255,255,255,.05) 60%, rgba(255,77,28,.35)) border-box;
     box-shadow: 0 40px 120px rgba(0,0,0,.7), 0 0 80px rgba(255,77,28,.09);
+    transform-style: preserve-3d; will-change: transform;
+    transition: transform .25s cubic-bezier(.2,.7,.3,1);
   }
   .app-bar {
     display: flex; align-items: center; gap: 14px;
@@ -193,21 +213,19 @@
   }
   .demo-chip {
     font-family: var(--font-mono); font-size: .6rem; color: var(--faint);
-    border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px;
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; white-space: nowrap;
   }
   .app-body { display: grid; grid-template-columns: 1.45fr 1fr; }
   @media (max-width: 760px) {
     .app-body { grid-template-columns: 1fr; }
-    /* モバイルではリーグ+草をフィードの下に積む（隠さない） */
     .app-side { border-left: none; border-top: 1px solid var(--line); }
   }
-
   .pane-label {
     font-family: var(--font-mono); font-size: .62rem; font-weight: 700; letter-spacing: .16em;
     color: var(--faint); padding: 16px 20px 6px;
   }
-  #feed { list-style: none; height: 372px; overflow: hidden; position: relative; padding: 4px 0 0; }
-  #feed::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(transparent, var(--card)); }
+  #feed { list-style: none; height: 384px; overflow: hidden; position: relative; padding: 4px 0 0; }
+  #feed::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(transparent, var(--card)); pointer-events: none; }
   #feed li {
     display: flex; gap: 13px; align-items: flex-start;
     padding: 11px 20px; animation: slidein .4s cubic-bezier(.2,.8,.3,1);
@@ -225,7 +243,7 @@
     -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude;
   }
-  .feed-body { min-width: 0; }
+  .feed-body { min-width: 0; flex: 1; }
   .feed-meta { font-size: .7rem; color: var(--faint); font-family: var(--font-en); }
   .feed-meta b { color: var(--dim); font-weight: 700; }
   .task-title { font-weight: 600; font-size: .88rem; line-height: 1.55; }
@@ -236,19 +254,37 @@
   .st.done { color: #170a02; background: var(--grad); box-shadow: 0 0 14px rgba(255,77,28,.35); }
   .st.doing { color: var(--ember2); border: 1px solid rgba(255,154,60,.4); }
   .st.new { color: #8ab8ff; border: 1px solid rgba(120,170,255,.35); }
+  .fire-btn {
+    flex: none; align-self: center; display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--font-mono); font-size: .68rem; font-weight: 700; color: var(--faint);
+    background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 999px;
+    padding: 3px 10px; cursor: pointer; position: relative;
+    transition: color .15s, border-color .15s, transform .15s;
+  }
+  .fire-btn:hover { color: var(--ember2); border-color: rgba(255,154,60,.4); }
+  .fire-btn.lit { color: var(--ember2); border-color: rgba(255,154,60,.5); background: rgba(255,77,28,.1); }
+  .fire-btn.pop { animation: firepop .35s cubic-bezier(.2,2,.4,1); }
+  @keyframes firepop { 40% { transform: scale(1.28); } }
+  .fire-fly {
+    position: absolute; left: 50%; top: 0; font-size: .9rem; pointer-events: none;
+    animation: flyup .8s ease-out forwards;
+  }
+  @keyframes flyup { to { transform: translate(-50%, -34px) scale(1.5); opacity: 0; } }
 
   .app-side { border-left: 1px solid var(--line); background: rgba(255,255,255,.012); }
-  .league { padding: 4px 14px 10px; }
+  .league { padding: 4px 14px 10px; position: relative; }
   .league-row {
     display: flex; align-items: center; gap: 10px;
     padding: 8px 8px; border-radius: 10px; font-size: .78rem;
+    transition: transform .7s cubic-bezier(.3,.9,.3,1), background .4s;
+    position: relative; background: transparent;
   }
   .league-row.you { background: linear-gradient(90deg, rgba(255,77,28,.16), transparent); border: 1px solid rgba(255,77,28,.25); }
   .rank { font-family: var(--font-mono); font-weight: 700; font-size: .72rem; color: var(--faint); width: 18px; }
   .league-row.you .rank { color: var(--ember2); }
   .lname { font-family: var(--font-en); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .lpts { font-family: var(--font-mono); font-size: .72rem; color: var(--dim); }
-  .updown { font-size: .62rem; font-family: var(--font-mono); }
+  .updown { font-size: .62rem; font-family: var(--font-mono); width: 12px; }
   .up { color: #7dd87d; } .down { color: #ff7a7a; }
   .grass { padding: 2px 20px 20px; display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; }
   .cell { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,.05); }
@@ -257,7 +293,20 @@
   .cell.g3 { background: rgba(255,122,40,.75); box-shadow: 0 0 6px rgba(255,77,28,.4); }
   .cell.g4 { background: var(--ember2); box-shadow: 0 0 10px rgba(255,154,60,.65); }
 
-  /* ===== marquee ===== */
+  /* overtake toast */
+  #toast {
+    position: absolute; left: 50%; bottom: 18px; transform: translate(-50%, 20px);
+    display: flex; align-items: center; gap: 8px; z-index: 5;
+    font-size: .74rem; font-weight: 700; white-space: nowrap;
+    color: var(--text); background: rgba(20,20,28,.92); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,154,60,.35); border-radius: 12px; padding: 9px 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.6), 0 0 24px rgba(255,77,28,.15);
+    opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s cubic-bezier(.2,.9,.3,1);
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  #toast .t-ico { font-size: .95rem; }
+
+  /* ===================== marquee ===================== */
   .marquee { margin-top: 84px; border-block: 1px solid var(--line); padding: 15px 0; overflow: hidden; position: relative; }
   .marquee::before, .marquee::after {
     content: ""; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2; pointer-events: none;
@@ -270,20 +319,20 @@
   .mq-item .check { color: var(--ember2); font-weight: 900; }
   .mq-item .who { font-family: var(--font-en); color: var(--faint); font-size: .7rem; }
 
-  /* ===== sections ===== */
-  section { padding: 108px 0 0; }
+  /* ===================== sections ===================== */
+  section { padding: 110px 0 0; }
   .eyebrow {
     font-family: var(--font-mono); font-size: .68rem; font-weight: 700; letter-spacing: .3em;
     color: var(--ember); margin-bottom: 18px;
   }
-  h2 { font-size: clamp(1.55rem, 4.4vw, 2.35rem); font-weight: 900; line-height: 1.45; letter-spacing: .01em; }
+  h2 { font-size: clamp(1.55rem, 4.4vw, 2.4rem); font-weight: 900; line-height: 1.45; letter-spacing: .01em; }
   .sec-lead { color: var(--dim); margin-top: 16px; font-size: .95rem; max-width: 40em; }
   .sec-lead b { color: var(--text); }
 
-  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0s); }
   .reveal.in { opacity: 1; transform: none; }
 
-  /* ===== bento ===== */
+  /* ===================== bento ===================== */
   .bento { display: grid; gap: 14px; margin-top: 44px; grid-template-columns: repeat(6, 1fr); }
   .bx {
     grid-column: span 6;
@@ -300,6 +349,16 @@
     background: radial-gradient(420px 220px at var(--mx, 50%) var(--my, 0%), rgba(255,77,28,.1), transparent 70%);
   }
   .bx:hover::before { opacity: 1; }
+  .bx-lead { position: relative; }
+  .bx-lead::after {
+    content: ""; position: absolute; inset: -1px; border-radius: 18px; padding: 1px; z-index: 2; pointer-events: none;
+    background: conic-gradient(from var(--spin, 0deg), transparent 0 65%, rgba(255,154,60,.9) 78%, rgba(255,194,77,.9) 84%, transparent 96%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: spin 6s linear infinite;
+  }
+  @property --spin { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  @keyframes spin { to { --spin: 360deg; } }
   @media (min-width: 700px) {
     .b-4 { grid-column: span 4; } .b-3 { grid-column: span 3; } .b-2 { grid-column: span 2; }
   }
@@ -323,10 +382,10 @@
   }
   .streak-cap { font-size: .7rem; color: var(--faint); margin-top: 4px; }
 
-  /* ===== creed（数字で語る設計思想）===== */
+  /* ===================== creed ===================== */
   .creed { margin-top: 46px; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
   @media (min-width: 700px) { .creed { grid-template-columns: repeat(4, 1fr); } }
-  .creed div { background: var(--card); padding: 26px 22px; }
+  .creed > div { background: var(--card); padding: 26px 22px; }
   .creed .n {
     font-family: var(--font-en); font-weight: 900; font-size: 2.3rem; line-height: 1.1;
     background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -334,7 +393,7 @@
   .creed .t { font-size: .8rem; font-weight: 700; margin-top: 8px; }
   .creed .d { font-size: .72rem; color: var(--faint); margin-top: 4px; line-height: 1.6; }
 
-  /* ===== steps ===== */
+  /* ===================== steps ===================== */
   .steps { margin-top: 46px; display: grid; gap: 12px; counter-reset: step; }
   .step {
     display: flex; gap: 22px; align-items: flex-start;
@@ -351,18 +410,24 @@
   .step b { display: block; font-size: 1rem; font-weight: 900; }
   .step span { font-size: .84rem; color: var(--dim); }
 
-  /* ===== manifesto ===== */
-  .manifesto { margin-top: 108px; text-align: center; position: relative; padding: 90px 24px; overflow: hidden; }
+  /* ===================== manifesto (ignite) ===================== */
+  .manifesto { margin-top: 110px; text-align: center; position: relative; padding: 92px 24px; overflow: hidden; }
   .manifesto::before {
     content: ""; position: absolute; inset: 0; z-index: -1;
     background: radial-gradient(ellipse 70% 90% at 50% 50%, rgba(255,77,28,.13), transparent 70%);
   }
-  .manifesto p {
-    font-size: clamp(1.5rem, 4.6vw, 2.5rem); font-weight: 900; line-height: 1.75; letter-spacing: .02em;
+  .manifesto p { font-size: clamp(1.5rem, 4.6vw, 2.6rem); font-weight: 900; line-height: 1.8; letter-spacing: .02em; }
+  .ignite {
+    display: inline-block;
+    background: linear-gradient(97deg, var(--ember) 0%, var(--ember2) 20%, var(--gold) 38%, var(--ash) 50%, var(--ash) 100%);
+    background-size: 250% 100%; background-position: 100% 0;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    transition: background-position 1.4s cubic-bezier(.4,.1,.3,1);
   }
-  .manifesto small { display: block; margin-top: 22px; font-size: .84rem; color: var(--dim); font-weight: 500; letter-spacing: .2em; }
+  .ignite.lit { background-position: 0% 0; filter: drop-shadow(0 0 22px rgba(255,77,28,.25)); }
+  .manifesto small { display: block; margin-top: 24px; font-size: .84rem; color: var(--dim); font-weight: 500; letter-spacing: .2em; }
 
-  /* ===== themes ===== */
+  /* ===================== themes ===================== */
   .themes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
   .theme {
     font-size: .84rem; font-weight: 700; border-radius: 999px; padding: 9px 20px;
@@ -374,10 +439,37 @@
   }
   .theme.open::after { content: " ● 受付中"; font-size: .68rem; }
 
-  /* ===== waitlist ===== */
-  .waitlist { margin-top: 118px; }
+  /* ===================== FAQ ===================== */
+  .faq { margin-top: 44px; display: grid; gap: 10px; }
+  .faq details {
+    border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,.015), transparent);
+    transition: border-color .25s;
+  }
+  .faq details[open] { border-color: rgba(255,154,60,.35); }
+  .faq summary {
+    cursor: pointer; list-style: none; display: flex; align-items: center; gap: 14px;
+    padding: 18px 22px; font-weight: 700; font-size: .92rem; user-select: none;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::before {
+    content: "Q"; flex: none;
+    font-family: var(--font-en); font-weight: 900; font-size: .8rem;
+    width: 26px; height: 26px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ember2); background: rgba(255,77,28,.12); border: 1px solid rgba(255,77,28,.25);
+  }
+  .faq summary::after {
+    content: "+"; margin-left: auto; font-family: var(--font-en); font-weight: 600;
+    color: var(--faint); font-size: 1.2rem; transition: transform .25s;
+  }
+  .faq details[open] summary::after { transform: rotate(45deg); color: var(--ember2); }
+  .faq .a { padding: 0 22px 20px 62px; font-size: .86rem; color: var(--dim); }
+  .faq .a b { color: var(--text); }
+
+  /* ===================== waitlist ===================== */
+  .waitlist { margin-top: 120px; }
   .wl-card {
-    position: relative; text-align: center; border-radius: 26px; padding: 74px 28px; overflow: hidden;
+    position: relative; text-align: center; border-radius: 26px; padding: 76px 28px; overflow: hidden;
     border: 1px solid transparent;
     background:
       linear-gradient(var(--bg2), var(--bg2)) padding-box,
@@ -393,6 +485,8 @@
   .wl-card .sec-lead { margin: 16px auto 0; }
   .wl-card .btn-lg { margin-top: 34px; }
   .wl-fine { margin-top: 18px; font-size: .72rem; color: var(--faint); }
+  .spark-burst { position: absolute; pointer-events: none; font-size: .8rem; animation: burst .7s ease-out forwards; z-index: 5; }
+  @keyframes burst { to { transform: translate(var(--bx), var(--by)) scale(.3); opacity: 0; } }
 
   footer {
     margin-top: 96px; padding: 30px 0 52px; border-top: 1px solid var(--line);
@@ -401,45 +495,66 @@
   .foot-in { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; }
   footer a { color: var(--dim); text-decoration: none; }
   footer a:hover { color: var(--text); }
+  .bip { font-family: var(--font-mono); font-size: .68rem; }
+  .bip b { color: var(--ember2); font-weight: 700; }
 
-  /* ===== mobile ===== */
+  /* ===================== sticky mobile CTA ===================== */
+  #sticky-cta {
+    position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 65;
+    display: none; align-items: center; gap: 12px;
+    background: rgba(14,14,21,.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,154,60,.3); border-radius: 16px; padding: 10px 12px 10px 18px;
+    box-shadow: 0 12px 44px rgba(0,0,0,.6), 0 0 30px rgba(255,77,28,.12);
+    transform: translateY(120%); transition: transform .35s cubic-bezier(.2,.9,.3,1);
+  }
+  #sticky-cta.show { transform: none; }
+  #sticky-cta .s-txt { font-size: .72rem; font-weight: 700; line-height: 1.5; flex: 1; min-width: 0; }
+  #sticky-cta .s-txt small { display: block; font-weight: 500; color: var(--faint); font-size: .62rem; }
+  #sticky-cta .btn { flex: none; font-size: .8rem; padding: 11px 18px; border-radius: 11px; }
+  @media (max-width: 720px) { #sticky-cta { display: flex; } }
+
+  /* ===================== mobile ===================== */
   @media (max-width: 640px) {
-    .hero { padding: 116px 0 20px; }
+    .hero { padding: 118px 0 20px; }
     h1 { font-size: clamp(1.72rem, 8.6vw, 2.6rem); line-height: 1.42; }
     .badge { font-size: .68rem; padding: 6px 13px; margin-bottom: 26px; letter-spacing: .02em; }
     .hero .lead { padding: 0 4px; }
     .hero-cta { margin-top: 30px; }
     .hero-cta .btn-lg { width: 100%; max-width: 360px; font-size: .98rem; padding: 16px 20px; }
     .cta-sub { padding: 0 12px; line-height: 1.9; }
+    .nav-live { display: none; }
     .stage { margin-top: 52px; padding: 0 12px; }
     .app { border-radius: 16px; }
     .app-bar { padding: 11px 14px; gap: 10px; }
     .app-title { display: none; }
     .pane-label { padding: 14px 16px 4px; }
-    #feed { height: 316px; }
+    #feed { height: 322px; }
     #feed li { padding: 10px 14px; gap: 11px; }
     .task-title { font-size: .84rem; }
+    .fire-btn { padding: 3px 8px; }
     .league { padding: 4px 10px 10px; }
     .grass { padding: 2px 16px 18px; gap: 3px; }
     .marquee { margin-top: 54px; padding: 12px 0; }
     .marquee-track { gap: 30px; }
-    section { padding: 78px 0 0; }
+    section { padding: 80px 0 0; }
     .eyebrow { margin-bottom: 14px; }
     .bento { margin-top: 34px; gap: 12px; }
     .bx { padding: 22px 20px; border-radius: 16px; }
     .creed { margin-top: 36px; }
-    .creed div { padding: 20px 18px; }
+    .creed > div { padding: 20px 18px; }
     .creed .n { font-size: 2rem; }
     .steps { margin-top: 36px; }
     .step { gap: 16px; padding: 18px; border-radius: 14px; }
     .step::before { font-size: 1.25rem; }
-    .manifesto { margin-top: 80px; padding: 62px 20px; }
+    .manifesto { margin-top: 82px; padding: 64px 20px; }
     .themes { margin-top: 26px; gap: 8px; }
     .theme { font-size: .78rem; padding: 8px 16px; }
-    .waitlist { margin-top: 86px; }
-    .wl-card { padding: 50px 20px; border-radius: 20px; }
+    .faq summary { padding: 15px 16px; font-size: .86rem; gap: 11px; }
+    .faq .a { padding: 0 16px 16px 53px; }
+    .waitlist { margin-top: 88px; }
+    .wl-card { padding: 52px 20px 56px; border-radius: 20px; }
     .wl-card .btn-lg { width: 100%; max-width: 360px; font-size: .98rem; padding: 16px 20px; }
-    footer { margin-top: 70px; padding: 24px 0 42px; }
+    footer { margin-top: 70px; padding: 24px 0 96px; }
     .foot-in { flex-direction: column; gap: 10px; }
     .blob-1 { width: 440px; height: 440px; margin-left: -220px; }
   }
@@ -448,6 +563,8 @@
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     h1 .l > span { transform: none; }
     .reveal { opacity: 1; transform: none; }
+    .ignite { background-position: 0 0; }
+    #sparks { display: none; }
   }
 </style>
 </head>
@@ -459,11 +576,14 @@
   <div class="blob blob-2"></div>
   <div class="blob blob-3"></div>
 </div>
+<canvas id="sparks" aria-hidden="true"></canvas>
 <div class="noise"></div>
+<div id="progress" aria-hidden="true"></div>
 
 <nav>
   <div class="nav-in">
     <a class="logo" href="#"><span class="logo-mark">▲</span>Netero</a>
+    <span class="nav-live" aria-hidden="true">🔥 <b id="nav-count">—</b> 人が作業中</span>
     <a class="btn btn-fire btn-sm" href="#waitlist">ウェイトリスト登録</a>
   </div>
 </nav>
@@ -475,14 +595,15 @@
     <h1 id="hero-title"></h1>
     <p class="lead" id="hero-lead"></p>
     <div class="hero-cta">
-      <a class="btn btn-fire btn-lg" href="#waitlist">ウェイトリストに参加する — 無料</a>
+      <a class="btn btn-fire btn-lg cta-track" href="#waitlist">ウェイトリストに参加する — 無料</a>
       <span class="cta-sub">先行アクセスは<b>登録順に少人数ずつ</b>招待 ／ メールアドレスのみで30秒</span>
+      <span class="working-now"><span class="dot"></span>いま <b id="work-count">—</b> 人がタスクを進行中(画面イメージ)</span>
     </div>
   </div>
 
   <!-- app demo -->
-  <div class="stage">
-    <div class="app">
+  <div class="stage" id="stage">
+    <div class="app" id="app">
       <div class="app-bar">
         <span class="traffic"><i></i><i></i><i></i></span>
         <span class="app-title">netero — arena/<span id="app-slug"></span></span>
@@ -491,16 +612,17 @@
       </div>
       <div class="app-body">
         <div class="app-main">
-          <div class="pane-label">ARENA FEED — 全員のタスクが流れる</div>
+          <div class="pane-label">ARENA FEED — 全員のタスクが流れる(🔥は押せます)</div>
           <ul id="feed"></ul>
         </div>
         <div class="app-side">
-          <div class="pane-label">WEEKLY LEAGUE — GOLD Ⅲ</div>
+          <div class="pane-label">WEEKLY LEAGUE — GOLD Ⅲ(ライブ変動)</div>
           <div class="league" id="league"></div>
           <div class="pane-label">STREAK — 16 WEEKS</div>
           <div class="grass" id="grass"></div>
         </div>
       </div>
+      <div id="toast" role="status"><span class="t-ico">⚔️</span><span id="toast-msg"></span></div>
     </div>
   </div>
 
@@ -519,7 +641,7 @@
   </div>
 
   <div class="bento">
-    <div class="bx b-4 reveal">
+    <div class="bx bx-lead b-4 reveal">
       <div class="icon">👁</div>
       <h3>タスクは、すべて公開。</h3>
       <p>宣言も、進捗も、完了も、全員に見える。「見られている」は最強の締切。隠す場所はないから、続く。</p>
@@ -529,7 +651,7 @@
         <div class="mini-feedline"><span class="ico">🔥</span>完了 — 全員のフィードに流れ、🔥が付く</div>
       </div>
     </div>
-    <div class="bx b-2 reveal">
+    <div class="bx b-2 reveal" style="--d:.08s">
       <div class="icon">🔥</div>
       <h3>連続記録</h3>
       <p>止めた日が、全員にバレる。</p>
@@ -549,7 +671,7 @@
         <span class="tier">DIAMOND</span>
       </div>
     </div>
-    <div class="bx b-3 reveal">
+    <div class="bx b-3 reveal" style="--d:.08s">
       <div class="icon">🏟</div>
       <h3>同じ山を登る奴しかいない。</h3>
       <p>アリーナはテーマ制。「AIで稼ぐ」アリーナにいるのは、AIで稼ごうとしている人間だけ。深夜2時にフィードが動く。<b style="color:var(--text)">こんな時間にも、やってる奴がいる。</b>その事実があなたを机に戻す。</p>
@@ -572,16 +694,16 @@
   </div>
   <div class="steps">
     <div class="step reveal"><div><b>アリーナに入る</b><span id="step1-note"></span></div></div>
-    <div class="step reveal"><div><b>タスクを自分で作る</b><span>やり方は自由。何をタスクにするか＝攻め方こそが、あなたの個性として全員に見える。</span></div></div>
-    <div class="step reveal"><div><b>消化する。全員のフィードに流れる</b><span>宣言 → 実行 → 完了。そのすべてがリアルタイムに公開される。</span></div></div>
-    <div class="step reveal"><div><b>週末、リーグの結果が出る</b><span>昇格か、降格か。そして月曜、また始まる。</span></div></div>
+    <div class="step reveal" style="--d:.06s"><div><b>タスクを自分で作る</b><span>やり方は自由。何をタスクにするか＝攻め方こそが、あなたの個性として全員に見える。</span></div></div>
+    <div class="step reveal" style="--d:.12s"><div><b>消化する。全員のフィードに流れる</b><span>宣言 → 実行 → 完了。そのすべてがリアルタイムに公開される。</span></div></div>
+    <div class="step reveal" style="--d:.18s"><div><b>週末、リーグの結果が出る</b><span>昇格か、降格か。そして月曜、また始まる。</span></div></div>
   </div>
 </section>
 
 <!-- ============================== MANIFESTO ============================== -->
-<div class="manifesto reveal">
-  <p>意志力は、あてにならない。<br>環境は、<span class="fire-text">裏切らない。</span></p>
-  <small>焦りを、燃料に変えろ。</small>
+<div class="manifesto">
+  <p><span class="ignite">意志力は、あてにならない。</span><br><span class="ignite">環境は、裏切らない。</span></p>
+  <small><span class="ignite">焦りを、燃料に変えろ。</span></small>
 </div>
 
 <!-- ============================== ARENAS ============================== -->
@@ -594,13 +716,22 @@
   </div>
 </section>
 
+<!-- ============================== FAQ ============================== -->
+<section class="wrap-narrow">
+  <div class="reveal">
+    <div class="eyebrow">FAQ</div>
+    <h2>よくある質問</h2>
+  </div>
+  <div class="faq reveal" id="faq"></div>
+</section>
+
 <!-- ============================== WAITLIST ============================== -->
 <section class="waitlist wrap" id="waitlist">
   <div class="wl-card reveal">
     <div class="eyebrow" style="color:var(--ember2)">GET EARLY ACCESS</div>
     <h2>第1アリーナ「<span id="wl-theme"></span>」<br>ウェイトリスト受付中</h2>
     <p class="sec-lead" style="text-align:center">先行アクセスは登録順に少人数ずつ招待します。<br>初期メンバーは最初のリーグの<b>創設面子</b>になります。</p>
-    <a class="btn btn-fire btn-lg" id="form-link" href="#" target="_blank" rel="noopener">ウェイトリストに登録する — 30秒</a>
+    <a class="btn btn-fire btn-lg cta-track" id="form-link" href="#" target="_blank" rel="noopener">ウェイトリストに登録する — 30秒</a>
     <p class="wl-fine">登録は無料。メールアドレスといくつかの質問だけ。β招待の連絡以外には使いません。</p>
   </div>
 </section>
@@ -608,15 +739,20 @@
 <footer>
   <div class="wrap foot-in">
     <a class="logo" href="#" style="font-size:.95rem"><span class="logo-mark" style="width:20px;height:20px;font-size:.65rem">▲</span>Netero</a>
-    <div><a href="#" id="x-link" target="_blank" rel="noopener">X: @chmod_777_prod</a></div>
+    <div class="bip">build in public 中 → <a href="#" id="x-link" target="_blank" rel="noopener"><b>X: @chmod_777_prod</b></a></div>
     <div>© 2026 Netero</div>
   </div>
 </footer>
 
+<!-- sticky mobile CTA -->
+<div id="sticky-cta" aria-hidden="true">
+  <div class="s-txt">「AIで稼ぐ」アリーナ<small>先行アクセス — 登録順に招待</small></div>
+  <a class="btn btn-fire cta-track" id="sticky-link" href="#waitlist">登録する</a>
+</div>
+
 <script>
 /* ============================================================
  * THEME 設定 — テーマ別 LP はこのオブジェクトの差し替えだけで量産する
- * （lp/README.md の複製手順を参照）
  * ============================================================ */
 const THEME = {
   slug: "ai-earn",
@@ -647,13 +783,21 @@ const THEME = {
     { name: "大学受験", open: false },
     { name: "個人開発", open: false },
   ],
-  // Google フォーム（ウェイトリスト、スプレッドシート紐付け済み）
+  faq: [
+    { q: "招待はいつ来ますか?", a: "登録順に、最初のリーグ(5〜10人)が組める人数ずつ招待します。早く登録するほど<b>創設リーグの初期メンバー</b>になります。" },
+    { q: "無料ですか?", a: "ウェイトリストもβも<b>無料</b>です。正式版も基本機能は無料の予定。課金は「続けるための仕組み」に対してのみ検討しています。" },
+    { q: "サボったらどうなりますか?", a: "罰はありません。ただ、<b>連続記録が止まり、リーグ順位が落ちて、それが全員に見える</b>。それだけです。そしてそれが一番効きます。" },
+    { q: "登録に何が必要ですか?", a: "メールアドレスと、いくつかの簡単な質問だけ。<b>30秒</b>で終わります。β招待の連絡以外には使いません。" },
+  ],
+  // Google フォーム(ウェイトリスト、スプレッドシート紐付け済み)
   formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSdIE_GBbz9zDeQZ5djsvLka9fIMSu9jH7fqIwDt7nq78CUT4Q/viewform",
   xUrl: "https://x.com/chmod_777_prod",
 };
 
-/* ---- render ---- */
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = id => document.getElementById(id);
+
+/* ---- render ---- */
 $("hero-badge").textContent = THEME.badge;
 $("hero-title").innerHTML = THEME.titleLines.map(l => `<span class="l"><span>${l}</span></span>`).join("");
 $("hero-lead").innerHTML = THEME.lead;
@@ -665,13 +809,38 @@ $("form-link").href = THEME.formUrl;
 $("x-link").href = THEME.xUrl;
 $("themes").innerHTML = THEME.themes
   .map(t => `<span class="theme ${t.open ? "open" : ""}">${t.name}</span>`).join("");
+$("faq").innerHTML = THEME.faq
+  .map(f => `<details><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join("");
 
-/* ---- feed mock ---- */
+/* ---- live counters(演出値)---- */
+let workers = 187 + Math.floor(Math.random() * 40);
+function renderCount() { $("nav-count").textContent = workers; $("work-count").textContent = workers; }
+renderCount();
+setInterval(() => { workers = Math.max(140, workers + (Math.random() < .5 ? -1 : 1) * (1 + Math.floor(Math.random() * 3))); renderCount(); }, 3400);
+
+/* ---- feed mock(🔥インタラクティブ)---- */
 const HANDLES = ["kai", "mono", "yuzu_dev", "sara", "grind_87", "tk", "haru", "nano", "j1ro", "mei"];
 const EMOJI = ["🦊","🐺","🦉","🐯","🐉","🦅","🐗","🦁","🐙","🦂"];
 const LABEL = { done: "完了", doing: "進行中", new: "宣言" };
 const feed = $("feed");
 let fi = 0;
+function makeFireBtn(initial) {
+  const b = document.createElement("button");
+  b.className = "fire-btn"; b.type = "button";
+  b.setAttribute("aria-label", "🔥を送る");
+  let n = initial;
+  b.innerHTML = `🔥<span class="n">${n}</span>`;
+  b.addEventListener("click", () => {
+    n++; b.querySelector(".n").textContent = n;
+    b.classList.add("lit"); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+    if (!REDUCED) {
+      const f = document.createElement("span");
+      f.className = "fire-fly"; f.textContent = "🔥";
+      b.appendChild(f); setTimeout(() => f.remove(), 800);
+    }
+  });
+  return b;
+}
 function pushItem() {
   const task = THEME.sampleTasks[fi % THEME.sampleTasks.length];
   const u = Math.floor(Math.random() * HANDLES.length);
@@ -683,28 +852,79 @@ function pushItem() {
       <div class="feed-meta"><b>${HANDLES[u]}</b> · ${mins}m ago</div>
       <div class="task-title">${task.t}<span class="st ${task.s}">${LABEL[task.s]}</span></div>
     </div>`;
+  li.appendChild(makeFireBtn(task.s === "done" ? 2 + Math.floor(Math.random() * 9) : Math.floor(Math.random() * 3)));
   feed.prepend(li);
   while (feed.children.length > 8) feed.removeChild(feed.lastChild);
   fi++;
 }
 for (let i = 0; i < 7; i++) pushItem();
 setInterval(pushItem, 2600);
+/* 既存アイテムの🔥がひとりでに増える(誰かが押している気配) */
+setInterval(() => {
+  const btns = feed.querySelectorAll(".fire-btn");
+  if (!btns.length) return;
+  const b = btns[Math.floor(Math.random() * btns.length)];
+  const n = b.querySelector(".n"); n.textContent = +n.textContent + 1;
+  b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+}, 4100);
 
-/* ---- league mock ---- */
-const L = [
-  ["grind_87", 34, "up"], ["kai", 31, "up"], ["あなた", 29, "you"],
-  ["yuzu_dev", 26, "down"], ["mono", 22, ""], ["sara", 19, "down"],
+/* ---- league mock(ライブ順位変動 = 焦りの実演)---- */
+const league = $("league");
+let L = [
+  { name: "grind_87", pts: 34, you: false },
+  { name: "kai", pts: 31, you: false },
+  { name: "あなた", pts: 29, you: true },
+  { name: "yuzu_dev", pts: 26, you: false },
+  { name: "mono", pts: 22, you: false },
+  { name: "sara", pts: 19, you: false },
 ];
-$("league").innerHTML = L.map(([n, p, s], i) => `
-  <div class="league-row ${s === "you" ? "you" : ""}">
-    <span class="rank">${i + 1}</span><span class="lname">${n}</span>
-    <span class="updown ${s === "up" ? "up" : s === "down" ? "down" : ""}">${s === "up" ? "▲" : s === "down" ? "▼" : ""}</span>
-    <span class="lpts">${p}pt</span>
-  </div>`).join("");
+let prevRank = null;
+function renderLeague() {
+  const sorted = [...L].sort((a, b) => b.pts - a.pts);
+  league.innerHTML = sorted.map((r, i) => `
+    <div class="league-row ${r.you ? "you" : ""}" data-name="${r.name}">
+      <span class="rank">${i + 1}</span><span class="lname">${r.name}</span>
+      <span class="updown ${r.trend || ""}">${r.trend === "up" ? "▲" : r.trend === "down" ? "▼" : ""}</span>
+      <span class="lpts">${r.pts}pt</span>
+    </div>`).join("");
+  return sorted;
+}
+let sorted = renderLeague();
+prevRank = sorted.findIndex(r => r.you);
+setInterval(() => {
+  /* FLIP: 位置を記録 → 更新 → 差分を transform で戻して 0 へ遷移 */
+  const first = {};
+  league.querySelectorAll(".league-row").forEach(el => { first[el.dataset.name] = el.getBoundingClientRect().top; });
+  const i = Math.floor(Math.random() * L.length);
+  const gain = 1 + Math.floor(Math.random() * 3);
+  L[i].pts += gain;
+  L.forEach(r => r.trend = "");
+  L[i].trend = "up";
+  const sortedNow = renderLeague();
+  league.querySelectorAll(".league-row").forEach(el => {
+    const dy = (first[el.dataset.name] ?? el.getBoundingClientRect().top) - el.getBoundingClientRect().top;
+    if (dy) {
+      el.style.transition = "none"; el.style.transform = `translateY(${dy}px)`;
+      requestAnimationFrame(() => { el.style.transition = ""; el.style.transform = ""; });
+    }
+  });
+  const yourRank = sortedNow.findIndex(r => r.you);
+  if (prevRank !== null && yourRank > prevRank) showToast(`${L[i].name} があなたを追い抜きました`);
+  prevRank = yourRank;
+}, 6500);
+
+/* ---- overtake toast ---- */
+let toastTimer = null;
+function showToast(msg) {
+  $("toast-msg").textContent = msg;
+  $("toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 3200);
+}
 
 /* ---- contribution grass mock ---- */
 const grass = $("grass");
-const W = [0,0,1,1,2,2,2,3,3,4]; // 密度重み（後半＝加速している人の草）
+const W = [0,0,1,1,2,2,2,3,3,4];
 let cells = "";
 for (let c = 0; c < 16; c++) {
   for (let r = 0; r < 4; r++) {
@@ -718,13 +938,39 @@ grass.innerHTML = cells;
 /* ---- marquee ---- */
 const mqItems = THEME.sampleTasks.map((t, i) =>
   `<span class="mq-item"><span class="check">✔</span>${t.t}<span class="who">— ${HANDLES[i % HANDLES.length]}</span></span>`).join("");
-$("mq").innerHTML = mqItems + mqItems; /* 2周分でシームレスループ */
+$("mq").innerHTML = mqItems + mqItems;
+
+/* ---- scroll: progress bar + sticky CTA ---- */
+const progress = $("progress");
+const sticky = $("sticky-cta");
+let ticking = false;
+addEventListener("scroll", () => {
+  if (ticking) return; ticking = true;
+  requestAnimationFrame(() => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    progress.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    const wl = $("waitlist").getBoundingClientRect();
+    sticky.classList.toggle("show", h.scrollTop > 560 && wl.top > innerHeight * .7);
+    ticking = false;
+  });
+}, { passive: true });
 
 /* ---- scroll reveal ---- */
 const io = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
 }), { threshold: .15 });
 document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ---- manifesto ignite ---- */
+const ignites = document.querySelectorAll(".ignite");
+const mio = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  mio.unobserve(e.target);
+  const idx = [...ignites].indexOf(e.target);
+  setTimeout(() => e.target.classList.add("lit"), idx * 450);
+}), { threshold: .7 });
+ignites.forEach(el => mio.observe(el));
 
 /* ---- streak count-up ---- */
 const cu = new IntersectionObserver(es => es.forEach(e => {
@@ -747,6 +993,92 @@ document.querySelectorAll(".bx").forEach(b => {
     b.style.setProperty("--my", (e.clientY - r.top) + "px");
   });
 });
+
+/* ---- hero app 3D tilt(ポインタ環境のみ)---- */
+if (matchMedia("(pointer: fine)").matches && !REDUCED) {
+  const stage = $("stage"), app = $("app");
+  stage.addEventListener("pointermove", e => {
+    const r = stage.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - .5;
+    const py = (e.clientY - r.top) / r.height - .5;
+    app.style.transform = `rotateY(${px * 6}deg) rotateX(${py * -5}deg)`;
+  });
+  stage.addEventListener("pointerleave", () => { app.style.transform = ""; });
+}
+
+/* ---- CTA spark burst ---- */
+if (!REDUCED) {
+  document.querySelectorAll(".cta-track").forEach(btn => {
+    btn.addEventListener("pointerenter", e => {
+      for (let i = 0; i < 6; i++) {
+        const s = document.createElement("span");
+        s.className = "spark-burst"; s.textContent = ["🔥","✦","·"][i % 3];
+        const a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 40;
+        s.style.setProperty("--bx", Math.cos(a) * d + "px");
+        s.style.setProperty("--by", Math.sin(a) * d - 20 + "px");
+        s.style.left = (e.offsetX ?? btn.offsetWidth / 2) + "px";
+        s.style.top = (e.offsetY ?? 0) + "px";
+        btn.appendChild(s); setTimeout(() => s.remove(), 700);
+      }
+    });
+  });
+}
+
+/* ---- ember particles(hero 表示中のみ描画)---- */
+(function () {
+  if (REDUCED) return;
+  const cv = $("sparks"), ctx = cv.getContext("2d");
+  const MOBILE = innerWidth < 640;
+  const N = MOBILE ? 26 : 64;
+  let running = true, raf = null;
+  function resize() { cv.width = innerWidth; cv.height = innerHeight; }
+  resize(); addEventListener("resize", resize);
+  const P = Array.from({ length: N }, () => spawn(true));
+  function spawn(anywhere) {
+    return {
+      x: Math.random() * cv.width,
+      y: anywhere ? Math.random() * cv.height : cv.height + 10,
+      r: .6 + Math.random() * 1.8,
+      vy: .25 + Math.random() * .8,
+      vx: (Math.random() - .5) * .3,
+      sway: Math.random() * Math.PI * 2,
+      hue: 18 + Math.random() * 22,
+      life: .4 + Math.random() * .6,
+    };
+  }
+  function frame() {
+    if (!running) { raf = null; return; }
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i];
+      p.y -= p.vy; p.sway += .02;
+      p.x += p.vx + Math.sin(p.sway) * .25;
+      p.life -= .0016;
+      if (p.y < -12 || p.life <= 0) { P[i] = spawn(false); continue; }
+      const a = Math.max(0, Math.min(.85, p.life));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 100%, ${58 + p.r * 6}%, ${a})`;
+      ctx.shadowColor = `hsla(${p.hue}, 100%, 55%, ${a})`;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    raf = requestAnimationFrame(frame);
+  }
+  /* ヒーローが画面外に出たら止める(スクロール先で無駄に燃やさない) */
+  const hio = new IntersectionObserver(es => es.forEach(e => {
+    const want = e.isIntersecting;
+    if (want && !raf) { running = true; raf = requestAnimationFrame(frame); }
+    if (!want) running = false;
+  }), { threshold: 0 });
+  hio.observe(document.querySelector(".hero"));
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) running = false;
+    else if (!raf) { running = true; raf = requestAnimationFrame(frame); }
+  });
+  raf = requestAnimationFrame(frame);
+})();
 </script>
 <!-- floating arena-shuffle bot -->
 <button id="nbot" aria-label="別のアリーナへ移動">
@@ -776,7 +1108,7 @@ document.querySelectorAll(".bx").forEach(b => {
   #nbot:hover .nbot-bubble,#nbot.nbot-peek .nbot-bubble{opacity:1;transform:none}
   #nbot:hover{animation-play-state:paused}
   @media(prefers-reduced-motion:reduce){#nbot{animation:none}.nbot-eye{animation:none}}
-  @media(max-width:640px){#nbot{width:60px;height:66px;right:14px;bottom:14px}.nbot-bubble{display:none}}
+  @media(max-width:720px){#nbot{width:60px;height:66px;right:14px;bottom:78px}.nbot-bubble{display:none}}
 </style>
 <script>
 (function(){var ARENAS=["ai-earn","shikaku","indie","juken"],HERE="ai-earn";
