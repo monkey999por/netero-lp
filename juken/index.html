@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netero — 「大学受験」アリーナ | 隣の席が、ペンを止めない。</title>
+<meta name="description" content="大学受験に本気の受験生だけが集まるタスクSNS。全員の勉強が公開で流れる、終わらない自習室。隣が動いているから、あなたも動く。「大学受験」アリーナ ウェイトリスト受付中。">
+<meta property="og:title" content="Netero — 「大学受験」アリーナ">
+<meta property="og:description" content="隣の席が、ペンを止めない。全員の勉強が公開で流れる、終わらないオンライン自習室。ウェイトリスト受付中。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Zen+Kurenaido&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#20423a; --board2:#1a3630; --frame:#5b3a22; --frame2:#78502f;
+    --chalk:#f5f2e8; --chalkdim:#c4c9bd; --chalkfaint:#8fa096;
+    --yellow:#ffe08a; --pink:#ff9d92; --blue:#9fd3e0;
+    --hand:"Yomogi",cursive; --pen:"Zen Kurenaido",sans-serif; --sans:"Noto Sans JP",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:#14251f;color:var(--chalk);font-family:var(--pen);line-height:1.9;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:1.04rem}
+  ::selection{background:rgba(255,224,138,.35);color:#20423a}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+
+  /* chalkboard surface */
+  .board{position:fixed;inset:0;z-index:-2;background:
+    radial-gradient(ellipse 60% 50% at 30% 20%,rgba(255,255,255,.035),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 70%,rgba(255,255,255,.025),transparent 60%),
+    var(--board)}
+  .board::after{content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(8px);background:rgba(32,66,58,.72);border-bottom:1px dashed rgba(245,242,232,.25)}
+  .nav-in{max-width:1000px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:var(--hand);font-size:1.4rem;color:var(--chalk);text-decoration:none;display:flex;align-items:center;gap:8px}
+  .logo .m{color:var(--yellow)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;transition:transform .16s,background .16s;font-family:var(--pen);font-weight:700}
+  .btn-chalk{color:#20423a;background:var(--yellow);border:2px solid var(--yellow);box-shadow:2px 2px 0 rgba(0,0,0,.25)}
+  .btn-chalk:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(0,0,0,.3)}
+  .btn-outline{color:var(--chalk);background:transparent;border:2px dashed var(--chalk)}
+  .btn-outline:hover{background:rgba(245,242,232,.08)}
+  .btn-sm{font-size:.85rem;padding:8px 16px;border-radius:6px}
+  .btn-lg{font-size:1.1rem;padding:15px 36px;border-radius:8px}
+
+  .hero{padding:140px 0 44px;text-align:center}
+  .chip{display:inline-block;font-family:var(--hand);font-size:.95rem;color:var(--yellow);border:2px dashed rgba(255,224,138,.5);border-radius:30px;padding:5px 20px;margin-bottom:28px;transform:rotate(-1.5deg)}
+  h1{font-family:var(--hand);font-size:clamp(2rem,7vw,4rem);line-height:1.5;color:var(--chalk);text-shadow:1px 1px 0 rgba(0,0,0,.2)}
+  h1 .u{position:relative;color:var(--yellow)}
+  h1 .u::after{content:"";position:absolute;left:-2%;right:-2%;bottom:2px;height:5px;background:var(--pink);border-radius:3px;opacity:.85}
+  .lead{margin:26px auto 0;max-width:30em;color:var(--chalkdim);font-size:clamp(1rem,2.5vw,1.16rem)}
+  .lead b{color:var(--chalk)}
+  .cta-row{margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .cta-note{font-size:.85rem;color:var(--chalkfaint)}
+
+  /* countdown */
+  .count{margin:44px auto 0;display:inline-flex;align-items:baseline;gap:12px;font-family:var(--hand);
+    border:2px dashed rgba(245,242,232,.4);border-radius:14px;padding:14px 28px;transform:rotate(.6deg)}
+  .count .lbl{font-size:1rem;color:var(--chalkdim)}
+  .count .num{font-size:2.6rem;color:var(--yellow);line-height:1}
+  .count .u2{font-size:1.1rem;color:var(--chalk)}
+
+  /* self-study log */
+  .stage{margin:60px auto 0;max-width:840px}
+  .desk{border:3px solid rgba(245,242,232,.22);border-radius:12px;overflow:hidden;background:rgba(26,54,48,.7);box-shadow:0 24px 70px rgba(0,0,0,.4)}
+  .desk-bar{display:flex;align-items:center;gap:10px;padding:13px 22px;border-bottom:2px dashed rgba(245,242,232,.2);font-family:var(--hand)}
+  .desk-bar .t{color:var(--yellow);font-size:1.05rem}
+  .desk-bar .live{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--pink)}
+  .desk-bar .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--pink);animation:pulse 1.4s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+  .imgchip{margin-left:auto;font-size:.72rem;color:var(--chalkfaint);font-family:var(--sans);border:1px dashed rgba(245,242,232,.3);border-radius:20px;padding:2px 10px}
+  #feed{list-style:none;height:344px;overflow:hidden;position:relative;padding:6px 0}
+  #feed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:76px;background:linear-gradient(transparent,rgba(26,54,48,.95))}
+  #feed li{display:flex;align-items:center;gap:14px;padding:12px 24px;animation:slide .4s ease}
+  @keyframes slide{from{opacity:0;transform:translateY(-10px)}}
+  .seat{font-family:var(--hand);font-size:.95rem;color:var(--blue);width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .subj{font-family:var(--pen);flex:1;color:var(--chalk)}
+  .st{font-family:var(--hand);font-size:.9rem;white-space:nowrap}
+  .st.done{color:var(--yellow)}
+  .st.now{color:var(--pink)}
+
+  section{padding:106px 0 0}
+  .eyebrow{font-family:var(--hand);font-size:1.05rem;color:var(--yellow);margin-bottom:14px;transform:rotate(-.5deg);display:inline-block}
+  h2{font-family:var(--hand);font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.6;color:var(--chalk)}
+  h2 .u{color:var(--yellow);border-bottom:4px solid var(--pink);padding-bottom:2px}
+  .sec-lead{color:var(--chalkdim);margin-top:16px;font-size:1.02rem;max-width:38em}
+  .sec-lead b{color:var(--chalk)}
+  .reveal{opacity:0;transform:translateY(22px) rotate(-.3deg);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  .cards{display:grid;gap:18px;margin-top:42px;grid-template-columns:1fr}
+  @media(min-width:720px){.cards{grid-template-columns:repeat(3,1fr)}}
+  .card{border:2px dashed rgba(245,242,232,.3);border-radius:12px;padding:28px 24px;background:rgba(26,54,48,.4)}
+  .card:nth-child(1){transform:rotate(-.8deg)}.card:nth-child(3){transform:rotate(.8deg)}
+  .card .em{font-size:1.8rem;margin-bottom:10px}
+  .card h3{font-family:var(--hand);font-size:1.3rem;margin-bottom:8px;color:var(--yellow)}
+  .card p{font-size:.94rem;color:var(--chalkdim)}
+
+  .steps{margin-top:42px;display:grid;gap:16px}
+  .step{display:flex;gap:20px;align-items:baseline;border-bottom:2px dashed rgba(245,242,232,.2);padding-bottom:16px}
+  .step .n{font-family:var(--hand);font-size:1.8rem;color:var(--pink);flex:none;width:46px}
+  .step b{display:block;font-family:var(--hand);font-size:1.2rem;color:var(--chalk)}
+  .step span{font-size:.92rem;color:var(--chalkdim)}
+
+  .manifesto{margin-top:108px;text-align:center;padding:90px 24px;position:relative}
+  .manifesto::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 70% 80% at 50% 50%,rgba(255,224,138,.08),transparent 70%)}
+  .manifesto p{font-family:var(--hand);font-size:clamp(1.6rem,5vw,2.8rem);line-height:1.9;color:var(--chalk)}
+  .manifesto p .u{color:var(--yellow);border-bottom:5px solid var(--pink)}
+  .manifesto small{display:block;margin-top:20px;font-size:.95rem;color:var(--chalkdim)}
+
+  .arenas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .arena{font-family:var(--hand);font-size:1rem;border:2px dashed rgba(245,242,232,.35);color:var(--chalkdim);border-radius:30px;padding:7px 20px}
+  .arena.open{color:#20423a;background:var(--yellow);border-color:var(--yellow)}
+  .arena.open::after{content:" ◎受付中";font-size:.72rem}
+
+  .waitlist{margin-top:112px}
+  .wl{position:relative;text-align:center;border:3px dashed rgba(255,224,138,.5);border-radius:16px;padding:70px 28px;background:rgba(26,54,48,.6)}
+  .wl h2{font-size:clamp(1.7rem,5vw,2.5rem)}
+  .wl .btn-lg{margin-top:28px}
+  .wl-fine{margin-top:16px;font-size:.85rem;color:var(--chalkfaint)}
+
+  footer{margin-top:88px;padding:28px 0 50px;border-top:2px dashed rgba(245,242,232,.2);font-size:.85rem;color:var(--chalkfaint)}
+  .foot{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center}
+  footer a{color:var(--chalkdim);text-decoration:none}footer a:hover{color:var(--yellow)}
+
+  @media(max-width:640px){
+    .hero{padding:112px 0 24px}
+    .btn-lg{width:100%;max-width:340px}
+    .count{padding:12px 20px}.count .num{font-size:2rem}
+    .stage{margin-top:48px}
+    #feed li{padding:11px 16px;gap:10px}.seat{width:70px;font-size:.85rem}
+    section{padding:78px 0 0}
+    .card:nth-child(n){transform:none}
+    .manifesto{padding:62px 18px;margin-top:80px}
+    .wl{padding:52px 20px}
+    .foot{flex-direction:column;gap:10px}
+  }
+  @media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="board"></div>
+
+<nav><div class="nav-in">
+  <a class="logo" href="#"><span class="m">✎</span>Netero</a>
+  <a class="btn btn-chalk btn-sm" href="#waitlist">ウェイトリスト</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="chip">ARENA ー 大学受験</div>
+  <h1>隣の席が、<br><span class="u">ペンを止めない。</span></h1>
+  <p class="lead">Netero は「<b>大学受験</b>」に本気の受験生だけの、終わらない自習室。<br>全員の勉強がリアルタイムで流れる。<b>だから、あなたも止まれない。</b></p>
+  <div class="cta-row">
+    <a class="btn btn-chalk btn-lg" href="#waitlist">ウェイトリストに登録する ✎</a>
+    <span class="cta-note">先行アクセスは登録順に少人数ずつ</span>
+  </div>
+  <div class="count">
+    <span class="lbl">共通テストまで</span><span class="num">あと183</span><span class="u2">日</span>
+  </div>
+
+  <div class="stage">
+    <div class="desk">
+      <div class="desk-bar"><span class="t">自習室ログ</span><span class="live">みんな勉強中</span><span class="imgchip">画面イメージ</span></div>
+      <ul id="feed"></ul>
+    </div>
+  </div>
+</div></header>
+
+<section class="wrap"><div class="reveal">
+  <div class="eyebrow">◎ どうして続くの？</div>
+  <h2>一人の部屋だと、<span class="u">手が止まる。</span></h2>
+  <p class="sec-lead">家で集中できないのは、あなたのせいじゃない。<b>誰も見ていない</b>から、スマホに手が伸びる。<br>自習室や図書館で捗るのは、隣の人がペンを走らせているから。Netero はその「隣の席」を、24時間ぶん用意する。同じ大学を目指す誰かが、今この瞬間も問題を解いている。</p>
+</div>
+<div class="cards">
+  <div class="card reveal"><div class="em">👀</div><h3>勉強は、全部見える</h3><p>「英単語100個」「数III 微分 20問」——やったこともサボったことも、全員に見える。だから机に向かう。</p></div>
+  <div class="card reveal"><div class="em">🏫</div><h3>同じ志望の仲間だけ</h3><p>アリーナは目標別。同じ大学・同じ受験を戦う人の気配だけが届く。ライバルであり、戦友。</p></div>
+  <div class="card reveal"><div class="em">🔥</div><h3>連続日数が、自信になる</h3><p>毎日の勉強がカレンダーに積み上がる。「◯日連続」を切らしたくない——それが明日の一歩を連れてくる。</p></div>
+</div></section>
+
+<section class="wrap"><div class="reveal">
+  <div class="eyebrow">◎ やり方はかんたん</div>
+  <h2>やることは、<span class="u">4つだけ。</span></h2>
+</div>
+<div class="steps">
+  <div class="step reveal"><span class="n">1</span><div><b>自習室（アリーナ）に入る</b><span>「大学受験」へ。登録したらすぐ、みんなの勉強が流れてくる。</span></div></div>
+  <div class="step reveal"><span class="n">2</span><div><b>今日やることを書く</b><span>単語・過去問・演習。何をやるかは自由。それが全員に見える。</span></div></div>
+  <div class="step reveal"><span class="n">3</span><div><b>こなす。自習室に流れる</b><span>終わらせるたび、みんなのタイムラインに流れて🔥が付く。</span></div></div>
+  <div class="step reveal"><span class="n">4</span><div><b>週末、リーグの結果が出る</b><span>勉強量が近い5〜10人で競争。上がるか、落ちるか。また月曜から。</span></div></div>
+</div></section>
+
+<div class="manifesto reveal">
+  <p>才能で受かるんじゃない。<br><span class="u">机に向かった日数</span>で受かる。</p>
+  <small>——だから、今日も座ろう。</small>
+</div>
+
+<section class="wrap"><div class="reveal">
+  <div class="eyebrow">◎ ほかのアリーナ</div>
+  <h2>自習室は、<span class="u">順次オープン。</span></h2>
+  <p class="sec-lead">人が集まったテーマから開いていく。あなたの目標がまだ無いなら、<b>あなたが一番乗り</b>。</p>
+  <div class="arenas" id="arenas"></div>
+</div></section>
+
+<section class="waitlist wrap" id="waitlist"><div class="wl reveal">
+  <div class="eyebrow" style="color:var(--yellow)">◎ 先行案内</div>
+  <h2>「大学受験」アリーナ<br>ウェイトリスト受付中</h2>
+  <p class="sec-lead" style="text-align:center;margin:14px auto 0">先行アクセスは登録順に少人数ずつご案内します。<br>最初のメンバーは、この自習室の一期生。</p>
+  <a class="btn btn-chalk btn-lg" id="form" href="《FORM_URL_juken》" target="_blank" rel="noopener">ウェイトリストに登録する ✎</a>
+  <p class="wl-fine">登録は無料。メールアドレスといくつかの質問だけ。</p>
+</div></section>
+
+<footer><div class="wrap foot">
+  <a class="logo" href="#" style="font-size:1.2rem"><span class="m">✎</span>Netero</a>
+  <div><a href="https://x.com/chmod_777_prod" target="_blank" rel="noopener">X / @chmod_777_prod</a></div>
+  <div>© 2026 Netero</div>
+</div></footer>
+
+<script>
+const STUDY=[
+  {seat:"はると",subj:"英単語 ターゲット 100語",s:"done"},
+  {seat:"みお",subj:"数III 微分 20問",s:"now"},
+  {seat:"そうた",subj:"共通テスト 国語 過去問",s:"done"},
+  {seat:"ゆい",subj:"物理 力学 5題",s:"done"},
+  {seat:"けんと",subj:"英語長文 2題",s:"now"},
+  {seat:"あかり",subj:"日本史 近現代 一問一答",s:"done"},
+  {seat:"りく",subj:"化学 有機 反応まとめ",s:"done"},
+  {seat:"なな",subj:"数IA 確率 15問",s:"now"},
+  {seat:"たく",subj:"古文単語 50個",s:"done"},
+  {seat:"ひなの",subj:"英作文 3題 添削待ち",s:"done"},
+];
+const LABEL={done:"やった！",now:"勉強中…"};
+const feed=document.getElementById("feed");let i=0;
+function push(){const t=STUDY[i%STUDY.length];const li=document.createElement("li");
+  li.innerHTML=`<span class="seat">${t.seat}</span><span class="subj">${t.subj}</span><span class="st ${t.s}">${LABEL[t.s]}</span>`;
+  feed.prepend(li);while(feed.children.length>7)feed.removeChild(feed.lastChild);i++;}
+for(let k=0;k<6;k++)push();setInterval(push,2400);
+
+const ARENAS=[["AIで稼ぐ",1],["大学受験",1],["資格試験",1],["個人開発",1],["TOEIC",0],["筋トレ",0]];
+document.getElementById("arenas").innerHTML=ARENAS.map(([n,o])=>`<span class="arena ${o?"open":""}">${n}</span>`).join("");
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.14});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

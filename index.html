@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Netero</title>
 <meta name="robots" content="noindex">
-<!-- ルート（ドメイン直アクセス）は現在のフラッグシップLPへ送る。
-     各マーケLPは /<slug>/ に個別配置し、広告・投稿からは直接そのパスをリンクする。 -->
+<!-- ルートは ISO 週番号でアリーナを1週ごとにローテーション（末尾まで行くと先頭に戻ってループ）。
+     各アリーナLPは /<slug>/ で常時直アクセス可能。ここは振り分けだけ。
+     JS 無効時はメタリフレッシュで先頭アリーナ(ai-earn)にフォールバック。 -->
 <meta http-equiv="refresh" content="0; url=/ai-earn/">
-<link rel="canonical" href="/ai-earn/">
 <style>
   html,body{height:100%;margin:0}
   body{background:#050507;color:#9a9aa8;display:flex;align-items:center;justify-content:center;
@@ -17,7 +17,20 @@
 </style>
 </head>
 <body>
-  <p>Netero へ移動中… 自動で移動しない場合は <a href="/ai-earn/">こちら</a></p>
-  <script>location.replace("/ai-earn/");</script>
+  <p>今週のアリーナへ移動中… <a href="/ai-earn/">移動しない場合はこちら</a></p>
+  <script>
+    // ローテ順（末尾→先頭でループ）。アリーナを足したらここに slug を追加するだけ。
+    var ARENAS = ["ai-earn", "shikaku", "indie", "juken"];
+    // ISO 8601 週番号（月曜始まり）
+    function isoWeek(d){
+      var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      var day = t.getUTCDay() || 7;            // 月=1..日=7
+      t.setUTCDate(t.getUTCDate() + 4 - day);  // その週の木曜へ
+      var yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+      return Math.ceil((((t - yearStart) / 86400000) + 1) / 7);
+    }
+    var slug = ARENAS[(isoWeek(new Date()) - 1) % ARENAS.length];
+    location.replace("/" + slug + "/");
+  </script>
 </body>
 </html>
