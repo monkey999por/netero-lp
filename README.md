@@ -71,6 +71,10 @@ mkdir <slug>            # 例: toeic, kintore, blog
 
 Pull Request 歓迎。あなたのアリーナが、次のリーグの創設ラインになる。
 
+### 参考
+https://github.com/monkey999por/second-brain
+
+
 ---
 
 © 2026 Netero
